@@ -441,7 +441,7 @@ function competitorScanUrl(competitor) {
   return COMPETITOR_SOURCE_MAP[resolved]?.website || "";
 }
 
-async function scanCapabilityEvidence({ productProfile, competitors, marketItems }) {
+async function scanCapabilityEvidence({ productProfile, competitors, marketItems, documents = [] }) {
   const focusUrl = productProfile?.productUrl || "";
   const competitorTargets = competitors.map((competitor) => ({
     name: resolveCompetitorName(competitor),
@@ -461,14 +461,54 @@ async function scanCapabilityEvidence({ productProfile, competitors, marketItems
     newsByCompetitor.get(key).push(item);
   }
 
-  const buildStatuses = (pageText, pageUrl, newsItems = []) => {
+  // Step 3 documents: resolve each doc's text, plus which entity it speaks to.
+  // A doc that names a competitor is scoped to that competitor; otherwise it is
+  // treated as evidence for the focus product (the most common case for an
+  // uploaded product brief / spec sheet).
+  const competitorNamesLower = competitorTargets.map((t) => ({ name: t.name, lower: t.name.toLowerCase() }));
+  const docScans = await Promise.all((documents || []).slice(0, 8).map(async (doc, index) => {
+    let text = String(doc?.text || "");
+    const url = String(doc?.url || "").trim();
+    if (!text && url) text = await fetchPageTextForScan(url);
+    text = text.slice(0, 60000);
+    if (!text.trim()) return null;
+    const lower = text.toLowerCase();
+    const name = String(doc?.name || `Workspace document ${index + 1}`).slice(0, 120);
+    const matchedCompetitor = competitorNamesLower.find((c) => lower.includes(c.lower))?.name || "";
+    return {
+      name,
+      url,
+      target: matchedCompetitor || "__focus__",
+      detected: detectCapabilitiesInText(lower),
+    };
+  }));
+
+  const docEvidenceByTarget = new Map();
+  for (const scan of docScans) {
+    if (!scan) continue;
+    if (!docEvidenceByTarget.has(scan.target)) docEvidenceByTarget.set(scan.target, []);
+    docEvidenceByTarget.get(scan.target).push(scan);
+  }
+
+  const buildStatuses = (pageText, pageUrl, newsItems = [], docScansForTarget = []) => {
     const claimed = detectCapabilitiesInText(pageText);
     const newsText = newsItems.map((item) => `${item.headline || ""} ${item.summary || ""}`).join(" ").toLowerCase();
     const reported = detectCapabilitiesInText(newsText);
     const statuses = {};
     for (const row of CAPABILITY_DETECTORS) {
+      // Find a Step 3 document that confirms this capability for this target.
+      const docHit = docScansForTarget.find((scan) => scan.detected[row.id]);
       if (claimed[row.id]) {
         statuses[row.id] = { status: "claimed", term: claimed[row.id].trim(), evidenceUrl: pageUrl };
+      } else if (docHit) {
+        // Step 3 document evidence is treated as a confirmed (claimed) proof point.
+        statuses[row.id] = {
+          status: "claimed",
+          term: docHit.detected[row.id].trim(),
+          evidenceUrl: docHit.url || "",
+          evidenceSource: "document",
+          evidenceLabel: docHit.name,
+        };
       } else if (reported[row.id]) {
         const sourceItem = newsItems.find((item) => `${item.headline || ""} ${item.summary || ""}`.toLowerCase().includes(reported[row.id]));
         statuses[row.id] = { status: "reported", term: reported[row.id].trim(), evidenceUrl: sourceItem?.sourceUrl || "" };
@@ -483,12 +523,17 @@ async function scanCapabilityEvidence({ productProfile, competitors, marketItems
 
   const competitorEvidence = {};
   competitorTargets.forEach((target, index) => {
-    competitorEvidence[target.name] = buildStatuses(competitorTexts[index], target.url, newsByCompetitor.get(target.name) || []);
+    competitorEvidence[target.name] = buildStatuses(
+      competitorTexts[index],
+      target.url,
+      newsByCompetitor.get(target.name) || [],
+      docEvidenceByTarget.get(target.name) || []
+    );
   });
 
   return {
     rows: CAPABILITY_DETECTORS.map((row) => ({ id: row.id, capability: row.capability, note: row.note })),
-    focus: buildStatuses(focusText, focusUrl),
+    focus: buildStatuses(focusText, focusUrl, [], docEvidenceByTarget.get("__focus__") || []),
     competitors: competitorEvidence,
     scannedAt: new Date().toISOString(),
   };
@@ -544,7 +589,7 @@ export async function getWorkspaceIntelligence({ force = false, product = {}, co
   console.log(`[workspace-intelligence] Fetching intelligence for competitors: ${competitors.map((c) => (typeof c === "string" ? c : c?.name || "")).filter(Boolean).join(', ')}`);
   const marketFeed = await getMarketSignalsFeed({ force, competitors });
   const signals = Array.isArray(marketFeed.items) ? marketFeed.items : [];
-  const capabilityEvidence = await scanCapabilityEvidence({ productProfile, competitors, marketItems: signals });
+  const capabilityEvidence = await scanCapabilityEvidence({ productProfile, competitors, marketItems: signals, documents });
   const documentEvidence = await buildDocumentEvidence({ documents, competitors });
   const evidenceInput = [...signals, ...documentEvidence];
   const evidenceDatabase = buildEvidenceDatabase({ marketItems: evidenceInput });

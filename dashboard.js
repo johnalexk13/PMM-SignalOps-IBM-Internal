@@ -4822,7 +4822,11 @@ function resolveCapabilityMatrixColumn(name) {
 function describeEvidenceCell(cell) {
   if (!cell) return EVIDENCE_STATUS_LABEL.unknown;
   const base = EVIDENCE_STATUS_LABEL[cell.status] || EVIDENCE_STATUS_LABEL.unknown;
-  return cell.term ? `${base} (matched: \"${cell.term}\")` : base;
+  const matched = cell.term ? `${base} (matched: \"${cell.term}\")` : base;
+  if (cell.evidenceSource === "document" && cell.evidenceLabel) {
+    return `${matched} - from uploaded source: ${cell.evidenceLabel}`;
+  }
+  return matched;
 }
 
 function buildEvidenceCapabilityMatrix(competitors, evidence) {
