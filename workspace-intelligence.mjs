@@ -609,7 +609,7 @@ export async function getWorkspaceIntelligence({ force = false, product = {}, co
 
   const content = localizeForProduct(buildContentSection(rankEvidenceForPurpose(evidenceDatabase.items, "content", { limit: MAX_CONTENT_IDEAS, diversify: false }), productProfile, aiContentSuggestions), productProfile);
   const events = localizeForProduct(buildPmmSection(rankEvidenceForPurpose(evidenceDatabase.items, "pmm", { limit: 16, diversify: false }), productProfile, aiPMMActions), productProfile);
-  const productSection = localizeForProduct(buildProductSection(rankEvidenceForPurpose(evidenceDatabase.items, "product", { limit: 16, diversify: false }), productProfile, competitors), productProfile);
+  const productSection = localizeForProduct(buildProductSection(rankEvidenceForPurpose(evidenceDatabase.items, "product", { limit: 16, diversify: false }), productProfile, competitors, capabilityEvidence), productProfile);
   const positioning = localizeForProduct(buildPositioningSection(rankEvidenceForPurpose(evidenceDatabase.items, "positioning", { limit: 12, diversify: false }), productSection, productProfile), productProfile);
   const overview = localizeForProduct(buildOverviewSection(rankEvidenceForPurpose(evidenceDatabase.items, "overview", { limit: 12, diversify: false }), { content, events, product: productSection, positioning }, productProfile), productProfile);
 
@@ -756,7 +756,65 @@ function buildPmmSection(signals, productProfile, aiActions = null) {
   };
 }
 
-function buildProductSection(signals, productProfile, competitors = []) {
+// Product-agnostic remaining-gap derivation. A gap is any capability the focus
+// product does NOT claim while one or more competitors DO. Scores combine how
+// far behind the focus product is with how many competitors lead on it. Works
+// for any focus product because it only reads scan statuses, never hardcoded
+// product facts. Focus status already accounts for Step 3 documents, so a doc
+// that proves a capability removes the gap automatically.
+function deriveAlgorithmicGaps({ capabilityEvidence, productProfile }) {
+  if (!capabilityEvidence || !Array.isArray(capabilityEvidence.rows) || !capabilityEvidence.rows.length) {
+    return { gaps: [], scanned: false };
+  }
+  const focusShort = productProfile?.shortName || productProfile?.displayName || "the focus product";
+  const buyer = productProfile?.primaryBuyer || "Product, PMM, and sales stakeholders";
+  const competitorNames = Object.keys(capabilityEvidence.competitors || {});
+
+  const focusNowLabel = (status) => {
+    switch (status) {
+      case "reported": return `Only an unverified mention exists for ${focusShort}; no clear public claim on the configured page.`;
+      case "unknown": return `${focusShort}'s product page could not be scanned. Add or verify the focus product URL in Manage so this capability can be evaluated.`;
+      default: return `Not surfaced on ${focusShort}'s configured product page.`;
+    }
+  };
+
+  const gaps = [];
+  for (const row of capabilityEvidence.rows) {
+    const focusCell = capabilityEvidence.focus?.[row.id] || { status: "unknown" };
+    const focusStatus = focusCell.status;
+    if (focusStatus === "claimed") continue; // focus already has it -> not an investment gap
+
+    const claiming = competitorNames.filter((name) => capabilityEvidence.competitors[name]?.[row.id]?.status === "claimed");
+    if (!claiming.length) continue; // no competitor leads on it -> no investment pressure
+
+    const focusWeakness = focusStatus === "not-detected" ? 4 : focusStatus === "reported" ? 3 : 2.5;
+    const pressure = Math.min(5, claiming.length * 1.5);
+    const rawScore = focusWeakness + pressure;
+    const gapScore = `${Math.min(9.5, rawScore).toFixed(1)} / 10`;
+    const priority = rawScore >= 7 ? "P1 - Review now" : rawScore >= 4.5 ? "P2 - High" : "P3 - Monitor";
+
+    const claimList = claiming.join(", ");
+    const capLower = row.capability.toLowerCase();
+    gaps.push({
+      id: `algo-gap-${row.id}`,
+      priority,
+      title: row.capability,
+      gapScore,
+      copy: `${claimList} ${claiming.length === 1 ? "publicly claims" : "publicly claim"} ${capLower}, while ${focusShort} does not. ${row.note}`,
+      current: focusNowLabel(focusStatus),
+      leverage: `If ${focusShort} supports this, surface it clearly on the product page and in messaging to neutralize the comparison. If not, treat it as a roadmap or packaging priority, since ${claiming.length} tracked ${claiming.length === 1 ? "competitor leads" : "competitors lead"} with it.`,
+      impact: buyer,
+      competitors: claiming,
+      tags: ["Capability gap", "Evidence-derived", row.capability],
+      derived: true,
+    });
+  }
+
+  gaps.sort((a, b) => parseGapScore(b.gapScore) - parseGapScore(a.gapScore));
+  return { gaps, scanned: true };
+}
+
+function buildProductSection(signals, productProfile, competitors = [], capabilityEvidence = null) {
   const criticalGap = pickCriticalGap(signals, productProfile);
   const strengths = productProfile.confirmedStrengths.map((item, index) => {
     // Use actual competitors from the list instead of hardcoded ones
@@ -773,9 +831,41 @@ function buildProductSection(signals, productProfile, competitors = []) {
     };
   });
 
-  const remainingGaps = productProfile.gapBlueprints
-    .map((gap) => enrichProductGap(gap, signals))
-    .sort((left, right) => parseGapScore(right.gapScore) - parseGapScore(left.gapScore));
+  const focusShort = productProfile?.shortName || productProfile?.displayName || "the focus product";
+  const { gaps: algorithmicGaps, scanned } = deriveAlgorithmicGaps({ capabilityEvidence, productProfile });
+
+  let remainingGaps;
+  if (algorithmicGaps.length) {
+    remainingGaps = algorithmicGaps;
+  } else if (scanned) {
+    // Pages were scanned and no competitor-led capability exceeds the focus product.
+    remainingGaps = [{
+      priority: "Healthy",
+      title: "No competitor-led capability gaps detected",
+      gapScore: "0 / 10",
+      copy: `Across the scanned capabilities, no tracked competitor publicly claims a capability that ${focusShort} does not. Keep monitoring as competitor pages and your Step 3 sources change.`,
+      current: `${focusShort}'s configured page and uploaded sources cover the capabilities competitors currently lead with.`,
+      leverage: "Shift focus to differentiation and proof: turn the capabilities you already lead on into messaging and comparison assets.",
+      impact: productProfile?.primaryBuyer || "Product, PMM, and sales stakeholders",
+      competitors: [],
+      tags: ["No gaps", "Evidence-derived"],
+      derived: true,
+    }];
+  } else {
+    // Capability scan unavailable (focus or competitor pages unreachable).
+    remainingGaps = [{
+      priority: "Needs evidence",
+      title: "Add or verify sources to derive capability gaps",
+      gapScore: "0 / 10",
+      copy: `Capability gaps are derived from the focus product page, competitor pages, and Step 3 documents. None could be scanned yet, so no evidence-based gaps can be computed.`,
+      current: productProfile?.productUrl ? `${focusShort} product page configured but not reachable for scanning.` : `${focusShort} product page URL missing.`,
+      leverage: "Add or verify the focus product URL and competitor webpage links in Manage; optionally upload a Step 3 capability document.",
+      impact: productProfile?.primaryBuyer || "Product and PMM stakeholders",
+      competitors: [],
+      tags: ["Setup", "Evidence-derived"],
+      derived: true,
+    }];
+  }
 
   return {
     confirmedCapabilities: productProfile.confirmedCapabilities,

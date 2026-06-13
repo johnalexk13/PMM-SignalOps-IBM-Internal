@@ -4769,7 +4769,17 @@ function buildDynamicProductSuggestionModel() {
     },
   ];
 
-  const remainingGaps = competitors.length ? competitors.map((competitor) => {
+  // Prefer the backend's specific, evidence-enriched gap blueprints (full
+  // in-database ML, governed data sharing, streaming, NLQ, etc.) which carry
+  // real "what the product has now", IBM asset to leverage, named competitor
+  // capabilities, and buyer impact. Only fall back to the generic
+  // per-competitor coverage cards when the backend produced nothing.
+  const liveProductSection = getLiveSectionData("product");
+  const backendGaps = Array.isArray(liveProductSection?.remainingGaps)
+    ? liveProductSection.remainingGaps.filter((gap) => gap && gap.title && gap.copy)
+    : [];
+
+  const genericRemainingGaps = competitors.length ? competitors.map((competitor) => {
     const competitorSignals = byCompetitor.get(competitor.name) || [];
     const groups = new Set(competitorSignals.map((signal) => signal.group));
     const missing = ["social", "reviews", "blog", "website"].filter((group) => !groups.has(group));
@@ -4797,6 +4807,9 @@ function buildDynamicProductSuggestionModel() {
     competitors: [],
     tags: ["Setup"],
   }];
+
+  // Use backend's specific gaps when available; otherwise the generic cards.
+  const remainingGaps = backendGaps.length ? backendGaps : genericRemainingGaps;
 
   const capabilityMatrix = buildProductCapabilityMatrixForCompetitors(competitors, state.liveInsights?.capabilityEvidence);
 
