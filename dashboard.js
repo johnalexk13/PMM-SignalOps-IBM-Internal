@@ -4040,7 +4040,9 @@ function renderDocumentSourceRow(document) {
         </div>
       </div>
       <div class="document-source-actions">
-        ${canOpen ? `<a class="market-action-link" href="${escapeAttribute(document.dataUrl)}" target="_blank" rel="noreferrer noopener">Open</a>` : `<span class="mini-pill">Metadata only</span>`}
+        ${canOpen
+          ? `<a class="market-action-link" href="${escapeAttribute(document.dataUrl)}" target="_blank" rel="noreferrer noopener">Open</a>`
+          : (document.extractedText ? `<span class="mini-pill">Analyzed</span>` : `<span class="mini-pill">Metadata only</span>`)}
         <button class="delete-button" type="button" data-delete-document-source="${escapeAttribute(document.id)}">Delete</button>
       </div>
     </article>
@@ -7685,7 +7687,13 @@ function extractTextForStorage({ name, type, dataUrl }) {
   const lowerName = String(name || "").toLowerCase();
   const isPdf = String(type || "").includes("pdf") || lowerName.endsWith(".pdf");
   let text = isPdf ? extractPdfText(dataUrl) : decodeDocumentText(dataUrl);
-  return (text || "").slice(0, EXTRACTED_TEXT_CAP_CHARS);
+  text = (text || "").slice(0, EXTRACTED_TEXT_CAP_CHARS);
+  // Quality gate: require enough real words so a few stray glyphs from a
+  // compressed/scanned PDF aren't mistaken for usable text. If extraction is
+  // too thin, return empty so the UI honestly shows it could not be analyzed.
+  const wordCount = (text.match(/[A-Za-z]{3,}/g) || []).length;
+  if (wordCount < 20) return "";
+  return text;
 }
 
 function buildAnalyzableDocuments() {

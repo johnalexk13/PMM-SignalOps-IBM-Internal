@@ -461,10 +461,11 @@ async function scanCapabilityEvidence({ productProfile, competitors, marketItems
     newsByCompetitor.get(key).push(item);
   }
 
-  // Step 3 documents: resolve each doc's text, plus which entity it speaks to.
-  // A doc that names a competitor is scoped to that competitor; otherwise it is
-  // treated as evidence for the focus product (the most common case for an
-  // uploaded product brief / spec sheet).
+  // Step 3 documents: resolve each doc's text and which entities it speaks to.
+  // Uploaded product docs are focus-product evidence by default. A document may
+  // ALSO mention competitors; in that case it contributes to those competitors
+  // too, but it is never taken away from the focus product just because a rival
+  // name appears in the text (a Netezza brief routinely names Snowflake, etc.).
   const competitorNamesLower = competitorTargets.map((t) => ({ name: t.name, lower: t.name.toLowerCase() }));
   const docScans = await Promise.all((documents || []).slice(0, 8).map(async (doc, index) => {
     let text = String(doc?.text || "");
@@ -474,11 +475,18 @@ async function scanCapabilityEvidence({ productProfile, competitors, marketItems
     if (!text.trim()) return null;
     const lower = text.toLowerCase();
     const name = String(doc?.name || `Workspace document ${index + 1}`).slice(0, 120);
-    const matchedCompetitor = competitorNamesLower.find((c) => lower.includes(c.lower))?.name || "";
+    // An explicit external link about a single competitor is scoped to that
+    // competitor only; an uploaded document is treated as focus evidence and
+    // additionally credited to any competitor it explicitly names.
+    const mentionedCompetitors = competitorNamesLower.filter((c) => lower.includes(c.lower)).map((c) => c.name);
+    const isExternalLink = Boolean(url);
+    const targets = isExternalLink && mentionedCompetitors.length
+      ? mentionedCompetitors
+      : ["__focus__", ...mentionedCompetitors];
     return {
       name,
       url,
-      target: matchedCompetitor || "__focus__",
+      targets,
       detected: detectCapabilitiesInText(lower),
     };
   }));
@@ -486,8 +494,10 @@ async function scanCapabilityEvidence({ productProfile, competitors, marketItems
   const docEvidenceByTarget = new Map();
   for (const scan of docScans) {
     if (!scan) continue;
-    if (!docEvidenceByTarget.has(scan.target)) docEvidenceByTarget.set(scan.target, []);
-    docEvidenceByTarget.get(scan.target).push(scan);
+    for (const target of scan.targets) {
+      if (!docEvidenceByTarget.has(target)) docEvidenceByTarget.set(target, []);
+      docEvidenceByTarget.get(target).push(scan);
+    }
   }
 
   const buildStatuses = (pageText, pageUrl, newsItems = [], docScansForTarget = []) => {
