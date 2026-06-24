@@ -535,6 +535,36 @@ body.auth-locked { overflow: hidden; }
   height: 16px;
   accent-color: var(--ibm-blue);
 }
+.product-library-card-wrap {
+  position: relative;
+  display: flex;
+}
+.product-library-card-wrap > .product-library-card {
+  width: 100%;
+}
+.product-card-delete {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #b42318;
+  background: rgba(180,35,24,0.08);
+  border: 1px solid rgba(180,35,24,0.25);
+  border-radius: 999px;
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+.product-library-card-wrap:hover .product-card-delete,
+.product-card-delete:focus-visible {
+  opacity: 1;
+}
+.product-card-delete:hover {
+  background: rgba(180,35,24,0.16);
+}
 .product-library-card {
   display: grid;
   gap: 10px;

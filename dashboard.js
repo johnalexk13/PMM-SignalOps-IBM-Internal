@@ -3640,6 +3640,18 @@ function renderOverview() {
     return;
   }
 
+  // Step 2 guard: without configured competitors, the competitive-intelligence
+  // insights on Overview would be filled from generic fallbacks. Show the same
+  // "Complete Step 2" state the individual CI pages use instead of fabricating.
+  const overviewCompetitors = getConfiguredCompetitors();
+  if (overviewCompetitors.length === 0) {
+    refs.sections.overview.innerHTML = renderCompetitorRequiredState(
+      { badge: "Overview", title: "High-level product marketing insight system", description: "A single workspace for comparing __FOCUS_PRODUCT_DISPLAY__ with the competitor set across content, PMM actions, social and review signals, product gaps, and positioning strength." },
+      "Overview insights"
+    );
+    return;
+  }
+
   const productName = getFocusProductDisplayName();
   const productShortName = getFocusProductShortName();
   const pageSummaries = INSIGHT_PAGES.map((page) => ({
@@ -4138,21 +4150,24 @@ function renderProductLibraryCard(product) {
   const sourceCount = Object.values(product.sources || {}).reduce((sum, rows) => sum + (Array.isArray(rows) ? rows.length : 0), 0);
   const communityCount = (product.communityKeywords?.length || 0) + (product.communityPlatforms?.length || 0);
   return `
-    <button class="product-library-card ${active ? "active" : ""}" type="button" data-switch-focus-product="${escapeAttribute(product.id)}">
-      <div class="product-card-top">
-        <p class="field-label">${active ? "Current" : "Saved"}</p>
-        <span class="product-card-state">${active ? "Active" : "Restore"}</span>
-      </div>
-      <div>
-        <h4>${escapeHtml(product.displayName)}</h4>
-        <p class="panel-subcopy">${escapeHtml(product.description)}</p>
-      </div>
-      <div class="tag-row">
-        <span class="tag tone-content">${sourceCount} sources</span>
-        <span class="tag">${INSIGHT_PAGES.length} insight types</span>
-        <span class="tag tone-market">${communityCount} community settings</span>
-      </div>
-    </button>
+    <div class="product-library-card-wrap ${active ? "active" : ""}">
+      <button class="product-library-card ${active ? "active" : ""}" type="button" data-switch-focus-product="${escapeAttribute(product.id)}">
+        <div class="product-card-top">
+          <p class="field-label">${active ? "Current" : "Saved"}</p>
+          <span class="product-card-state">${active ? "Active" : "Restore"}</span>
+        </div>
+        <div>
+          <h4>${escapeHtml(product.displayName)}</h4>
+          <p class="panel-subcopy">${escapeHtml(product.description)}</p>
+        </div>
+        <div class="tag-row">
+          <span class="tag tone-content">${sourceCount} sources</span>
+          <span class="tag">${INSIGHT_PAGES.length} insight types</span>
+          <span class="tag tone-market">${communityCount} community settings</span>
+        </div>
+      </button>
+      ${active ? "" : `<button class="product-card-delete" type="button" data-delete-focus-product="${escapeAttribute(product.id)}" title="Remove this product" aria-label="Remove ${escapeAttribute(product.displayName)}">Remove</button>`}
+    </div>
   `;
 }
 
@@ -4920,6 +4935,30 @@ function makeDynamicCapabilityRow(capability, note, focusStatus, competitors, by
     statuses,
     gapScore: competitors.length ? Math.min(9, 2 + weakCount * 1.2).toFixed(1) : 0,
   };
+}
+
+function renderCommunitySetupRequiredState(page) {
+  return `
+    <div class="section-heading">
+      <div>
+        <p class="section-kicker">${escapeHtml(page.badge)}</p>
+        <h2>${escapeHtml(page.title)}</h2>
+        <p class="section-copy">${escapeHtml(focusProductText(page.description))}</p>
+      </div>
+    </div>
+    <article class="panel">
+      <div class="empty-state" style="padding: 60px 40px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+        <h3 style="margin-bottom: 12px;">Complete setup to view Community Intelligence</h3>
+        <p style="color: #666; margin-bottom: 24px; max-width: 600px; margin-left: auto; margin-right: auto;">
+          Community Intelligence needs at least one community keyword or platform link. Add these in the <strong>Manage</strong> page under Community Intelligence to start seeing recommendations.
+        </p>
+        <button class="primary-button" type="button" onclick="navigateToPage('community-manage')">
+          Go to Community Manage
+        </button>
+      </div>
+    </article>
+  `;
 }
 
 function renderCompetitorRequiredState(page, pageName) {
@@ -5833,6 +5872,14 @@ function getCommunitySuggestionItems() {
 }
 
 function renderCommunitySignalsPage(page) {
+  // Setup guard: Community Intelligence is driven by community keywords and
+  // platform links. Without any configured, results would come from generic
+  // fallbacks, so show a setup-needed state instead.
+  const hasCommunitySetup = (state.communityKeywords || []).length > 0
+    || (state.communityPlatforms || []).length > 0;
+  if (!hasCommunitySetup) {
+    return renderCommunitySetupRequiredState(page);
+  }
   const productShortName = getFocusProductShortName();
   const bucket = getCommunityBucketForPage(page.id);
   const groups = getCommunityGroupsForBucket(bucket.id);
@@ -6498,6 +6545,13 @@ function attachEvents() {
       return;
     }
 
+    const deleteFocusProductButton = event.target.closest("[data-delete-focus-product]");
+    if (deleteFocusProductButton) {
+      event.stopPropagation();
+      deleteFocusProduct(deleteFocusProductButton.dataset.deleteFocusProduct);
+      return;
+    }
+
     const switchFocusProductButton = event.target.closest("[data-switch-focus-product]");
     if (switchFocusProductButton) {
       switchFocusProduct(switchFocusProductButton.dataset.switchFocusProduct);
@@ -6896,6 +6950,46 @@ function switchFocusProduct(productId) {
   setActivePage("manage");
   updateHeaderMeta();
   if (window.location.protocol !== "file:") {
+    loadMarketSignals({ showLoadingState: false });
+    loadCommunitySignals({ showLoadingState: false });
+  }
+}
+
+function deleteFocusProduct(productId) {
+  const workspaces = state.productWorkspaces || {};
+  const target = workspaces[productId];
+  if (!target) return;
+
+  const name = target.displayName || "this product";
+  const confirmed = window.confirm(`Remove "${name}" and all its saved sources, competitors, and settings? This cannot be undone.`);
+  if (!confirmed) return;
+
+  const wasActive = productId === state.activeProductId;
+  // If we're deleting the active product, snapshot nothing (it's going away) and
+  // pick another product to switch to afterwards.
+  delete workspaces[productId];
+
+  const remainingIds = Object.keys(workspaces);
+  if (wasActive) {
+    if (remainingIds.length) {
+      const nextId = remainingIds[0];
+      state.activeProductId = nextId;
+      state.newProductDraftActive = false;
+      applyProductWorkspace(workspaces[nextId]);
+    } else {
+      // No products left: drop into the empty/new-product state.
+      state.activeProductId = "";
+      state.newProductDraftActive = false;
+      applyProductWorkspace(getEmptyProductWorkspace());
+    }
+  }
+
+  persistShellState();
+  renderAllPages();
+  renderShell();
+  setActivePage("manage");
+  updateHeaderMeta();
+  if (wasActive && window.location.protocol !== "file:") {
     loadMarketSignals({ showLoadingState: false });
     loadCommunitySignals({ showLoadingState: false });
   }
