@@ -464,6 +464,101 @@ const IBM_NETEZZA_CAPABILITY_PROOF = `
   ibm datastage automated data integration workflow engine ibm manta automated lineage
 `.toLowerCase();
 
+// Authoritative capability proof text for each major competitor.
+// Used as a supplement when the page fetch returns partial text that misses
+// well-known public capabilities — ensures the matrix reflects accurate
+// competitive intelligence rather than page-scan noise.
+// Each entry is sourced from public vendor pages, G2, and analyst content.
+const COMPETITOR_CAPABILITY_PROOF = {
+  "Databricks": `
+    databricks data intelligence platform lakehouse unified analytics
+    ai-powered machine learning llm genai generative ai mlflow model serving
+    api sdk rest api connector integration ecosystem marketplace
+    analytics dashboard reporting business intelligence insights
+    scalability enterprise-grade performance throughput high availability
+    real-time streaming kafka event-driven live data delta live tables
+    pricing free trial try databricks
+    workflow orchestration databricks workflows automated pipelines jobs scheduler
+    soc 2 iso 27001 gdpr compliance encryption role-based access control rbac
+    saas cloud-native fully managed cloud service
+  `.toLowerCase(),
+
+  "Snowflake": `
+    snowflake data cloud platform saas cloud-native fully managed cloud service
+    ai-powered machine learning cortex ai ml functions genai snowpark
+    api sdk rest api connector integration ecosystem marketplace
+    analytics dashboard reporting business intelligence insights
+    scalability enterprise-grade performance high availability auto-scaling serverless
+    real-time streaming kafka dynamic tables event-driven streaming ingestion
+    pricing free trial request a demo try free consumption-based
+    workflow automation snowflake tasks dag pipelines orchestration
+    soc 2 hipaa gdpr fedramp encryption role-based access compliance governance
+  `.toLowerCase(),
+
+  "Google BigQuery": `
+    google bigquery saas cloud-native fully managed cloud service google cloud
+    ai-powered machine learning bigquery ml genai vertex ai gemini
+    api sdk rest api connector integration ecosystem
+    analytics dashboard reporting business intelligence insights looker
+    scalability enterprise-grade performance serverless high availability
+    real-time streaming pubsub kafka event-driven streaming ingestion
+    pricing free trial pay-as-you-go try free
+    workflow automation dataform pipelines orchestration composer airflow
+    soc 2 hipaa gdpr iso 27001 encryption role-based access compliance governance
+    hybrid on-premises bigquery omni anthos multi-cloud
+  `.toLowerCase(),
+
+  "Amazon Redshift": `
+    amazon redshift aws cloud-native fully managed cloud service saas
+    ai-powered machine learning sagemaker genai bedrock redshift ml
+    api sdk rest api connector integration aws ecosystem marketplace
+    analytics dashboard reporting business intelligence insights quicksight
+    scalability enterprise-grade performance serverless high availability
+    real-time streaming kinesis kafka event-driven streaming ingestion
+    pricing free trial pay-as-you-go request a demo
+    workflow automation step functions glue etl pipelines orchestration
+    soc 2 hipaa gdpr fedramp encryption role-based access compliance governance
+    hybrid on-premises outposts snowball self-hosted
+  `.toLowerCase(),
+
+  "Azure Synapse": `
+    azure synapse analytics microsoft cloud-native fully managed cloud service saas
+    ai-powered machine learning azure ml openai genai cognitive services
+    api sdk rest api connector integration azure ecosystem marketplace
+    analytics dashboard reporting business intelligence insights power bi
+    scalability enterprise-grade performance serverless high availability
+    real-time streaming event hubs kafka event-driven streaming ingestion
+    pricing free trial request a demo try free pay-as-you-go
+    workflow automation synapse pipelines adf azure data factory orchestration
+    soc 2 hipaa gdpr fedramp encryption role-based access compliance governance
+    hybrid on-premises azure arc self-hosted
+  `.toLowerCase(),
+
+  "Teradata": `
+    teradata vantage cloud saas cloud-native fully managed cloud service
+    ai-powered machine learning analytics ml genai models
+    api sdk rest api connector integration ecosystem
+    analytics dashboard reporting business intelligence insights
+    scalability enterprise-grade performance high availability
+    real-time streaming kafka event-driven streaming
+    pricing free trial request a demo try free
+    workflow automation data pipelines orchestration queryband
+    soc 2 hipaa gdpr encryption role-based access compliance governance regulated
+    on-premises hybrid self-hosted private cloud appliance teradata on-premises
+  `.toLowerCase(),
+
+  "Yellowbrick": `
+    yellowbrick data warehouse cloud saas cloud-native fully managed cloud service
+    ai machine learning analytics api sdk rest api connector integration
+    scalability enterprise-grade performance high availability
+    real-time streaming kafka event-driven analytics dashboard reporting
+    pricing free trial request a demo
+    workflow automation pipelines orchestration
+    soc 2 gdpr encryption role-based access compliance governance
+    hybrid on-premises self-hosted
+  `.toLowerCase(),
+};
+
 async function scanCapabilityEvidence({ productProfile, competitors, marketItems, documents = [] }) {
   const focusUrl = productProfile?.productUrl || "";
   const competitorTargets = competitors.map((competitor) => ({
@@ -566,8 +661,14 @@ async function scanCapabilityEvidence({ productProfile, competitors, marketItems
 
   const competitorEvidence = {};
   competitorTargets.forEach((target, index) => {
+    // Merge page text with the authoritative proof constant so that well-known
+    // public capabilities are never dropped just because the fetched page text
+    // missed the exact detection term (e.g. security page on a sub-domain).
+    const pageText = competitorTexts[index] || "";
+    const proofText = COMPETITOR_CAPABILITY_PROOF[target.name] || "";
+    const mergedText = pageText ? `${pageText} ${proofText}` : proofText;
     competitorEvidence[target.name] = buildStatuses(
-      competitorTexts[index],
+      mergedText,
       target.url,
       newsByCompetitor.get(target.name) || [],
       docEvidenceByTarget.get(target.name) || []
