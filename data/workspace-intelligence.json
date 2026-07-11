@@ -1,7 +1,7 @@
 {
   "meta": {
     "status": "Controlled crawler 20/35",
-    "lastUpdated": "2026-07-11T19:28:37.880Z",
+    "lastUpdated": "2026-07-11T19:39:32.794Z",
     "activeSources": 20,
     "totalSources": 35,
     "failedSources": 15,
@@ -16,7 +16,7 @@
     ],
     "competitorCount": 6,
     "mode": "live",
-    "generatedAt": "2026-07-11T19:28:38.544Z",
+    "generatedAt": "2026-07-11T19:39:33.860Z",
     "evidenceMode": "hybrid",
     "pmmAssetSourceLinks": [
       {
@@ -36,7 +36,7 @@
       }
     ],
     "propelMode": "seeded",
-    "propelGeneratedAt": "2026-07-11T19:28:35.761Z",
+    "propelGeneratedAt": "2026-07-11T19:39:31.046Z",
     "focusProduct": {
       "id": "generic",
       "displayName": "Focus product",
@@ -153,7 +153,7 @@
       "Databricks": {
         "cloud-deployment": {
           "status": "claimed",
-          "term": "cloud data",
+          "term": "saas",
           "evidenceUrl": "https://docs.databricks.com/sql/index.html"
         },
         "hybrid-deployment": {
@@ -167,8 +167,8 @@
           "evidenceUrl": "https://docs.databricks.com/sql/index.html"
         },
         "security-compliance": {
-          "status": "not-detected",
-          "term": "",
+          "status": "claimed",
+          "term": "soc 2",
           "evidenceUrl": "https://docs.databricks.com/sql/index.html"
         },
         "apis-integrations": {
@@ -183,29 +183,29 @@
         },
         "analytics": {
           "status": "claimed",
-          "term": "dashboard",
+          "term": "analytics",
           "evidenceUrl": "https://docs.databricks.com/sql/index.html"
         },
         "scalability": {
           "status": "claimed",
-          "term": "performance",
+          "term": "scalab",
           "evidenceUrl": "https://docs.databricks.com/sql/index.html"
         },
         "realtime": {
           "status": "claimed",
-          "term": "streaming",
+          "term": "real-time",
           "evidenceUrl": "https://docs.databricks.com/sql/index.html"
         },
         "pricing": {
-          "status": "not-detected",
-          "term": "",
+          "status": "claimed",
+          "term": "pricing",
           "evidenceUrl": "https://docs.databricks.com/sql/index.html"
         }
       },
       "Snowflake": {
         "cloud-deployment": {
           "status": "claimed",
-          "term": "cloud-native",
+          "term": "saas",
           "evidenceUrl": "https://www.snowflake.com/en/migrate-to-the-cloud/"
         },
         "hybrid-deployment": {
@@ -219,8 +219,8 @@
           "evidenceUrl": "https://www.snowflake.com/en/migrate-to-the-cloud/"
         },
         "security-compliance": {
-          "status": "not-detected",
-          "term": "",
+          "status": "claimed",
+          "term": "soc 2",
           "evidenceUrl": "https://www.snowflake.com/en/migrate-to-the-cloud/"
         },
         "apis-integrations": {
@@ -229,8 +229,8 @@
           "evidenceUrl": "https://www.snowflake.com/en/migrate-to-the-cloud/"
         },
         "automation": {
-          "status": "not-detected",
-          "term": "",
+          "status": "claimed",
+          "term": "automation",
           "evidenceUrl": "https://www.snowflake.com/en/migrate-to-the-cloud/"
         },
         "analytics": {
@@ -272,7 +272,7 @@
         },
         "security-compliance": {
           "status": "claimed",
-          "term": "encryption",
+          "term": "soc 2",
           "evidenceUrl": "https://cloud.google.com/bigquery"
         },
         "apis-integrations": {
@@ -309,12 +309,12 @@
       "Amazon Redshift": {
         "cloud-deployment": {
           "status": "claimed",
-          "term": "cloud-native",
+          "term": "saas",
           "evidenceUrl": "https://aws.amazon.com/redshift/features/"
         },
         "hybrid-deployment": {
           "status": "claimed",
-          "term": "private cloud",
+          "term": "on-premises",
           "evidenceUrl": "https://aws.amazon.com/redshift/features/"
         },
         "ai-ml": {
@@ -324,7 +324,7 @@
         },
         "security-compliance": {
           "status": "claimed",
-          "term": "encryption",
+          "term": "soc 2",
           "evidenceUrl": "https://aws.amazon.com/redshift/features/"
         },
         "apis-integrations": {
@@ -334,7 +334,7 @@
         },
         "automation": {
           "status": "claimed",
-          "term": "workflow",
+          "term": "automation",
           "evidenceUrl": "https://aws.amazon.com/redshift/features/"
         },
         "analytics": {
@@ -366,7 +366,7 @@
         },
         "hybrid-deployment": {
           "status": "claimed",
-          "term": "hybrid",
+          "term": "on-premises",
           "evidenceUrl": "https://azure.microsoft.com/en-us/products/synapse-analytics/"
         },
         "ai-ml": {
@@ -376,7 +376,7 @@
         },
         "security-compliance": {
           "status": "claimed",
-          "term": "encryption",
+          "term": "soc 2",
           "evidenceUrl": "https://azure.microsoft.com/en-us/products/synapse-analytics/"
         },
         "apis-integrations": {
@@ -386,7 +386,7 @@
         },
         "automation": {
           "status": "claimed",
-          "term": "orchestration",
+          "term": "automation",
           "evidenceUrl": "https://azure.microsoft.com/en-us/products/synapse-analytics/"
         },
         "analytics": {
@@ -396,7 +396,7 @@
         },
         "scalability": {
           "status": "claimed",
-          "term": "performance",
+          "term": "scalab",
           "evidenceUrl": "https://azure.microsoft.com/en-us/products/synapse-analytics/"
         },
         "realtime": {
@@ -412,8 +412,8 @@
       },
       "Teradata": {
         "cloud-deployment": {
-          "status": "not-detected",
-          "term": "",
+          "status": "claimed",
+          "term": "saas",
           "evidenceUrl": "https://www.teradata.com/platform"
         },
         "hybrid-deployment": {
@@ -427,8 +427,8 @@
           "evidenceUrl": "https://www.teradata.com/platform"
         },
         "security-compliance": {
-          "status": "not-detected",
-          "term": "",
+          "status": "claimed",
+          "term": "soc 2",
           "evidenceUrl": "https://www.teradata.com/platform"
         },
         "apis-integrations": {
@@ -463,12 +463,12 @@
         }
       }
     },
-    "scannedAt": "2026-07-11T19:28:38.537Z"
+    "scannedAt": "2026-07-11T19:39:33.855Z"
   },
   "marketFeed": {
     "meta": {
       "status": "Controlled crawler 20/35",
-      "lastUpdated": "2026-07-11T19:28:37.880Z",
+      "lastUpdated": "2026-07-11T19:39:32.794Z",
       "activeSources": 20,
       "totalSources": 35,
       "failedSources": 15,
@@ -485,50 +485,16 @@
     },
     "items": [
       {
-        "id": "google-bigquery-linkedin-google-bigquery-social-narrative",
-        "competitor": "Google BigQuery",
+        "id": "teradata-linkedin-teradata-social-narrative",
+        "competitor": "Teradata",
         "group": "social",
-        "headline": "Google BigQuery social narrative",
+        "headline": "Teradata social narrative",
         "sourceLabel": "LinkedIn",
         "sourceBadge": "LINKEDIN",
-        "sourceUrl": "https://www.linkedin.com/showcase/google-cloud/",
+        "sourceUrl": "https://www.linkedin.com/company/teradata",
         "actionLabel": "Respond on LinkedIn",
-        "summary": "Google Cloud 3,327,347 followers 3h Report this post Schrödinger migrated its computational modeling platform to Google Cloud to accelerate the discovery of new therapeutics and materials. By using Compute Engine and... Google is pulling the conversation toward AI-native analytics and cloud-first scale. Focus product should counter with a governed warehouse eng...",
-        "publishedAt": "2026-07-11T19:28:37.462Z",
-        "coverageType": "live",
-        "coverageLabel": "Live",
-        "isNew": true,
-        "freshnessLabel": "1 min ago",
-        "dateLabel": "Jul 12, 2026"
-      },
-      {
-        "id": "databricks-linkedin-databricks-social-narrative",
-        "competitor": "Databricks",
-        "group": "social",
-        "headline": "Databricks social narrative",
-        "sourceLabel": "LinkedIn",
-        "sourceBadge": "LINKEDIN",
-        "sourceUrl": "https://www.linkedin.com/company/databricks",
-        "actionLabel": "Respond on LinkedIn",
-        "summary": "Databricks 1,295,078 followers 3h Report this post As AI teams adopt more autonomous agents, one challenge becomes clear: they don't naturally work together. Omnigent is an open-source meta-harness that sits above ind... Treat this as a push to make lakehouse SQL the default execution layer. Focus product should answer that a lakehouse still needs a performant...",
-        "publishedAt": "2026-07-11T19:28:37.453Z",
-        "coverageType": "live",
-        "coverageLabel": "Live",
-        "isNew": true,
-        "freshnessLabel": "1 min ago",
-        "dateLabel": "Jul 12, 2026"
-      },
-      {
-        "id": "azure-synapse-linkedin-azure-synapse-social-narrative",
-        "competitor": "Azure Synapse",
-        "group": "social",
-        "headline": "Azure Synapse social narrative",
-        "sourceLabel": "LinkedIn",
-        "sourceBadge": "LINKEDIN",
-        "sourceUrl": "https://www.linkedin.com/showcase/microsoft-azure/",
-        "actionLabel": "Respond on LinkedIn",
-        "summary": "Microsoft Azure 1,144,646 followers 23h Report this post Fireworks AI is helping teams scale AI applications with a production platform for open-weight models, supporting world-class inference, fine-tuning, and enterp... Microsoft's message keeps drifting toward a broader platform transition story. Focus product should use that to question focus and long-term p...",
-        "publishedAt": "2026-07-11T19:28:37.280Z",
+        "summary": "Teradata 572,319 followers 2d Report this post 🌟 7 million individual forecasts. In-database. In production. A leading Latin American utility needed to forecast demand across energy, gas, and water for 2 million cust... Teradata is trying to retain enterprise credibility with hybrid and AI-at-scale language. Focus product should press on time-to-value, watsonx...",
+        "publishedAt": "2026-07-11T19:39:32.770Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "isNew": true,
@@ -544,8 +510,8 @@
         "sourceBadge": "LINKEDIN",
         "sourceUrl": "https://www.linkedin.com/company/amazon-web-services",
         "actionLabel": "Respond on LinkedIn",
-        "summary": "Amazon Web Services (AWS) 10,901,118 followers 22h Report this post AWS Developers 65,604 followers 2d A year ago we launched AWS Builder Center as a home for the AWS community. 🎉🎂 Since then, you've submitted wishe... AWS is trying to keep modernization inside the AWS estate with lakehouse SQL, performance, and migration language. Focus product should counte...",
-        "publishedAt": "2026-07-11T19:28:36.992Z",
+        "summary": "Amazon Web Services (AWS) 10,901,137 followers 22h Report this post AWS Developers 65,604 followers 2d A year ago we launched AWS Builder Center as a home for the AWS community. 🎉🎂 Since then, you've submitted wishe... AWS is trying to keep modernization inside the AWS estate with lakehouse SQL, performance, and migration language. Focus product should counte...",
+        "publishedAt": "2026-07-11T19:39:32.613Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "isNew": true,
@@ -553,16 +519,16 @@
         "dateLabel": "Jul 12, 2026"
       },
       {
-        "id": "teradata-linkedin-teradata-social-narrative",
-        "competitor": "Teradata",
+        "id": "azure-synapse-linkedin-azure-synapse-social-narrative",
+        "competitor": "Azure Synapse",
         "group": "social",
-        "headline": "Teradata social narrative",
+        "headline": "Azure Synapse social narrative",
         "sourceLabel": "LinkedIn",
         "sourceBadge": "LINKEDIN",
-        "sourceUrl": "https://www.linkedin.com/company/teradata",
+        "sourceUrl": "https://www.linkedin.com/showcase/microsoft-azure/",
         "actionLabel": "Respond on LinkedIn",
-        "summary": "Teradata 572,315 followers 2d Report this post 🌟 7 million individual forecasts. In-database. In production. A leading Latin American utility needed to forecast demand across energy, gas, and water for 2 million cust... Teradata is trying to retain enterprise credibility with hybrid and AI-at-scale language. Focus product should press on time-to-value, watsonx...",
-        "publishedAt": "2026-07-11T19:28:36.952Z",
+        "summary": "Microsoft Azure 1,144,656 followers 23h Report this post Fireworks AI is helping teams scale AI applications with a production platform for open-weight models, supporting world-class inference, fine-tuning, and enterp... Microsoft's message keeps drifting toward a broader platform transition story. Focus product should use that to question focus and long-term p...",
+        "publishedAt": "2026-07-11T19:39:32.383Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "isNew": true,
@@ -570,16 +536,16 @@
         "dateLabel": "Jul 12, 2026"
       },
       {
-        "id": "snowflake-linkedin-snowflake-social-narrative",
-        "competitor": "Snowflake",
+        "id": "databricks-linkedin-databricks-social-narrative",
+        "competitor": "Databricks",
         "group": "social",
-        "headline": "Snowflake social narrative",
+        "headline": "Databricks social narrative",
         "sourceLabel": "LinkedIn",
         "sourceBadge": "LINKEDIN",
-        "sourceUrl": "https://www.linkedin.com/company/snowflake-computing",
+        "sourceUrl": "https://www.linkedin.com/company/databricks",
         "actionLabel": "Respond on LinkedIn",
-        "summary": "Snowflake 1,346,345 followers 1d Report this post What happens when you layer 45 years of curated industry knowledge on top of your data? 🧠 Infosys and Infosys Topaz share how they turn massive data foundations into... This is Snowflake trying to win the modernization brief through managed warehouse execution, AI momentum, and ease. Focus product should answer...",
-        "publishedAt": "2026-07-11T19:28:36.909Z",
+        "summary": "Databricks 1,295,085 followers 3h Report this post As AI teams adopt more autonomous agents, one challenge becomes clear: they don't naturally work together. Omnigent is an open-source meta-harness that sits above ind... Treat this as a push to make lakehouse SQL the default execution layer. Focus product should answer that a lakehouse still needs a performant...",
+        "publishedAt": "2026-07-11T19:39:32.382Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "isNew": true,
@@ -596,7 +562,7 @@
         "sourceUrl": "https://cloud.google.com/bigquery",
         "actionLabel": "Analyze page",
         "summary": "BigQuery is the autonomous data and AI platform, automating the entire data life cycle so you can go from data to AI to action faster. Google is pulling the conversation toward AI-native analytics and cloud-first scale. Focus product should counter with a governed warehouse engine story that makes lakehouse data reliable for enterprise AI and BI.",
-        "publishedAt": "2026-07-11T19:28:36.605Z",
+        "publishedAt": "2026-07-11T19:39:32.376Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "isNew": true,
@@ -604,16 +570,16 @@
         "dateLabel": "Jul 12, 2026"
       },
       {
-        "id": "snowflake-web-migrate-to-the-ai-data-cloud-with-snowflake",
-        "competitor": "Snowflake",
-        "group": "website",
-        "headline": "Migrate to the AI Data Cloud with Snowflake",
-        "sourceLabel": "Website",
-        "sourceBadge": "WEBSITE",
-        "sourceUrl": "https://www.snowflake.com/en/migrate-to-the-cloud/",
-        "actionLabel": "Analyze page",
-        "summary": "Simplify cloud migration with Snowflake’s secure, scalable platform—accelerate time to value and modernize analytics without the complexity of replatforming. This is Snowflake trying to win the modernization brief through managed warehouse execution, AI momentum, and ease. Focus product should answer on lakehouse-ready performance, TCO predictability, and gover...",
-        "publishedAt": "2026-07-11T19:28:36.510Z",
+        "id": "google-bigquery-linkedin-google-bigquery-social-narrative",
+        "competitor": "Google BigQuery",
+        "group": "social",
+        "headline": "Google BigQuery social narrative",
+        "sourceLabel": "LinkedIn",
+        "sourceBadge": "LINKEDIN",
+        "sourceUrl": "https://www.linkedin.com/showcase/google-cloud/",
+        "actionLabel": "Respond on LinkedIn",
+        "summary": "Google Cloud 3,327,358 followers 3h Report this post Schrödinger migrated its computational modeling platform to Google Cloud to accelerate the discovery of new therapeutics and materials. By using Compute Engine and... Google is pulling the conversation toward AI-native analytics and cloud-first scale. Focus product should counter with a governed warehouse eng...",
+        "publishedAt": "2026-07-11T19:39:32.352Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "isNew": true,
@@ -630,7 +596,24 @@
         "sourceUrl": "https://aws.amazon.com/redshift/features/",
         "actionLabel": "Analyze page",
         "summary": "Learn about Amazon Redshift features that make it the fastest and most popular cloud data warehouse. Amazon Redshift is data lake and AWS integrated, secure, and easy to manage. AWS is trying to keep modernization inside the AWS estate with lakehouse SQL, performance, and migration language. Focus product should counter on open lakehouse execution, cross-estate...",
-        "publishedAt": "2026-07-11T19:28:36.494Z",
+        "publishedAt": "2026-07-11T19:39:32.312Z",
+        "coverageType": "live",
+        "coverageLabel": "Live",
+        "isNew": true,
+        "freshnessLabel": "1 min ago",
+        "dateLabel": "Jul 12, 2026"
+      },
+      {
+        "id": "snowflake-linkedin-snowflake-social-narrative",
+        "competitor": "Snowflake",
+        "group": "social",
+        "headline": "Snowflake social narrative",
+        "sourceLabel": "LinkedIn",
+        "sourceBadge": "LINKEDIN",
+        "sourceUrl": "https://www.linkedin.com/company/snowflake-computing",
+        "actionLabel": "Respond on LinkedIn",
+        "summary": "Snowflake 1,346,352 followers 1d Report this post What happens when you layer 45 years of curated industry knowledge on top of your data? 🧠 Infosys and Infosys Topaz share how they turn massive data foundations into... This is Snowflake trying to win the modernization brief through managed warehouse execution, AI momentum, and ease. Focus product should answer...",
+        "publishedAt": "2026-07-11T19:39:32.114Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "isNew": true,
@@ -647,7 +630,24 @@
         "sourceUrl": "https://azure.microsoft.com/en-us/products/synapse-analytics/",
         "actionLabel": "Analyze page",
         "summary": "Accelerate time to insight across enterprise data warehouses and big data systems. Bring together enterprise SQL data warehousing and big data analytics services. Microsoft's message keeps drifting toward a broader platform transition story. Focus product should use that to question focus and long-term product clarity.",
-        "publishedAt": "2026-07-11T19:28:36.386Z",
+        "publishedAt": "2026-07-11T19:39:31.397Z",
+        "coverageType": "live",
+        "coverageLabel": "Live",
+        "isNew": true,
+        "freshnessLabel": "1 min ago",
+        "dateLabel": "Jul 12, 2026"
+      },
+      {
+        "id": "snowflake-web-migrate-to-the-ai-data-cloud-with-snowflake",
+        "competitor": "Snowflake",
+        "group": "website",
+        "headline": "Migrate to the AI Data Cloud with Snowflake",
+        "sourceLabel": "Website",
+        "sourceBadge": "WEBSITE",
+        "sourceUrl": "https://www.snowflake.com/en/migrate-to-the-cloud/",
+        "actionLabel": "Analyze page",
+        "summary": "Simplify cloud migration with Snowflake’s secure, scalable platform—accelerate time to value and modernize analytics without the complexity of replatforming. This is Snowflake trying to win the modernization brief through managed warehouse execution, AI momentum, and ease. Focus product should answer on lakehouse-ready performance, TCO predictability, and gover...",
+        "publishedAt": "2026-07-11T19:39:31.348Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "isNew": true,
@@ -664,7 +664,7 @@
         "sourceUrl": "https://www.teradata.com/platform",
         "actionLabel": "Analyze page",
         "summary": "Teradata&#x2019;s enterprise AI platform unifies data, analytics, and AI to deliver autonomous, real-time decisions with built-in governance across hybrid and multi-cloud environments. Teradata is trying to retain enterprise credibility with hybrid and AI-at-scale language. Focus product should press on time-to-value, watsonx.data adjacency, and performance-eng...",
-        "publishedAt": "2026-07-11T19:28:36.367Z",
+        "publishedAt": "2026-07-11T19:39:31.336Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "isNew": true,
@@ -681,7 +681,7 @@
         "sourceUrl": "https://docs.databricks.com/sql/index.html",
         "actionLabel": "Analyze page",
         "summary": "Data warehousing on Databricks | Databricks on AWS Skip to main content Get started Guides Develop Reference Resources Release notes Help Support Knowledge Base Community Training English English 日本語 Português AWS Azu... Treat this as a push to make lakehouse SQL the default execution layer. Focus product should answer that a lakehouse still needs a performant...",
-        "publishedAt": "2026-07-11T19:28:36.334Z",
+        "publishedAt": "2026-07-11T19:39:31.311Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "isNew": true,
@@ -1100,7 +1100,7 @@
   },
   "evidenceDatabase": {
     "meta": {
-      "generatedAt": "2026-07-11T19:28:38.538Z",
+      "generatedAt": "2026-07-11T19:39:33.855Z",
       "itemCount": 30,
       "liveCount": 25,
       "staticCount": 5,
@@ -1120,7 +1120,7 @@
         "sourceUrl": "https://www.snowflake.com/en/migrate-to-the-cloud/",
         "headline": "Migrate to the AI Data Cloud with Snowflake",
         "summary": "Simplify cloud migration with Snowflake’s secure, scalable platform—accelerate time to value and modernize analytics without the complexity of replatforming. This is Snowflake trying to win the modernization brief through managed warehouse execution, AI momentum, and ease. Focus product should answer on lakehouse-ready performance, TCO predictability, and gover...",
-        "publishedAt": "2026-07-11T19:28:36.510Z",
+        "publishedAt": "2026-07-11T19:39:31.348Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "freshnessLabel": "1 min ago",
@@ -1139,7 +1139,7 @@
         "sourceUrl": "https://docs.databricks.com/sql/index.html",
         "headline": "Data warehousing on Databricks | Databricks on AWS",
         "summary": "Data warehousing on Databricks | Databricks on AWS Skip to main content Get started Guides Develop Reference Resources Release notes Help Support Knowledge Base Community Training English English 日本語 Português AWS Azu... Treat this as a push to make lakehouse SQL the default execution layer. Focus product should answer that a lakehouse still needs a performant...",
-        "publishedAt": "2026-07-11T19:28:36.334Z",
+        "publishedAt": "2026-07-11T19:39:31.311Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "freshnessLabel": "1 min ago",
@@ -1158,7 +1158,7 @@
         "sourceUrl": "https://cloud.google.com/bigquery",
         "headline": "BigQuery | AI data platform | EDW",
         "summary": "BigQuery is the autonomous data and AI platform, automating the entire data life cycle so you can go from data to AI to action faster. Google is pulling the conversation toward AI-native analytics and cloud-first scale. Focus product should counter with a governed warehouse engine story that makes lakehouse data reliable for enterprise AI and BI.",
-        "publishedAt": "2026-07-11T19:28:36.605Z",
+        "publishedAt": "2026-07-11T19:39:32.376Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "freshnessLabel": "1 min ago",
@@ -1177,7 +1177,7 @@
         "sourceUrl": "https://aws.amazon.com/redshift/features/",
         "headline": "Cloud Data Warehouse – Amazon Redshift Features – AWS",
         "summary": "Learn about Amazon Redshift features that make it the fastest and most popular cloud data warehouse. Amazon Redshift is data lake and AWS integrated, secure, and easy to manage. AWS is trying to keep modernization inside the AWS estate with lakehouse SQL, performance, and migration language. Focus product should counter on open lakehouse execution, cross-estate...",
-        "publishedAt": "2026-07-11T19:28:36.494Z",
+        "publishedAt": "2026-07-11T19:39:32.312Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "freshnessLabel": "1 min ago",
@@ -1196,7 +1196,7 @@
         "sourceUrl": "https://azure.microsoft.com/en-us/products/synapse-analytics/",
         "headline": "Azure Synapse Analytics | Microsoft Azure",
         "summary": "Accelerate time to insight across enterprise data warehouses and big data systems. Bring together enterprise SQL data warehousing and big data analytics services. Microsoft's message keeps drifting toward a broader platform transition story. Focus product should use that to question focus and long-term product clarity.",
-        "publishedAt": "2026-07-11T19:28:36.386Z",
+        "publishedAt": "2026-07-11T19:39:31.397Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "freshnessLabel": "1 min ago",
@@ -1234,7 +1234,7 @@
         "sourceUrl": "https://www.teradata.com/platform",
         "headline": "Autonomous Knowledge Platform for Enterprise AI | Teradata",
         "summary": "Teradata&#x2019;s enterprise AI platform unifies data, analytics, and AI to deliver autonomous, real-time decisions with built-in governance across hybrid and multi-cloud environments. Teradata is trying to retain enterprise credibility with hybrid and AI-at-scale language. Focus product should press on time-to-value, watsonx.data adjacency, and performance-eng...",
-        "publishedAt": "2026-07-11T19:28:36.367Z",
+        "publishedAt": "2026-07-11T19:39:31.336Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "freshnessLabel": "1 min ago",
@@ -1347,8 +1347,8 @@
         "sourceBadge": "LINKEDIN",
         "sourceUrl": "https://www.linkedin.com/company/databricks",
         "headline": "Databricks social narrative",
-        "summary": "Databricks 1,295,078 followers 3h Report this post As AI teams adopt more autonomous agents, one challenge becomes clear: they don't naturally work together. Omnigent is an open-source meta-harness that sits above ind... Treat this as a push to make lakehouse SQL the default execution layer. Focus product should answer that a lakehouse still needs a performant...",
-        "publishedAt": "2026-07-11T19:28:37.453Z",
+        "summary": "Databricks 1,295,085 followers 3h Report this post As AI teams adopt more autonomous agents, one challenge becomes clear: they don't naturally work together. Omnigent is an open-source meta-harness that sits above ind... Treat this as a push to make lakehouse SQL the default execution layer. Focus product should answer that a lakehouse still needs a performant...",
+        "publishedAt": "2026-07-11T19:39:32.382Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "freshnessLabel": "1 min ago",
@@ -1366,8 +1366,8 @@
         "sourceBadge": "LINKEDIN",
         "sourceUrl": "https://www.linkedin.com/company/snowflake-computing",
         "headline": "Snowflake social narrative",
-        "summary": "Snowflake 1,346,345 followers 1d Report this post What happens when you layer 45 years of curated industry knowledge on top of your data? 🧠 Infosys and Infosys Topaz share how they turn massive data foundations into... This is Snowflake trying to win the modernization brief through managed warehouse execution, AI momentum, and ease. Focus product should answer...",
-        "publishedAt": "2026-07-11T19:28:36.909Z",
+        "summary": "Snowflake 1,346,352 followers 1d Report this post What happens when you layer 45 years of curated industry knowledge on top of your data? 🧠 Infosys and Infosys Topaz share how they turn massive data foundations into... This is Snowflake trying to win the modernization brief through managed warehouse execution, AI momentum, and ease. Focus product should answer...",
+        "publishedAt": "2026-07-11T19:39:32.114Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "freshnessLabel": "1 min ago",
@@ -1404,8 +1404,8 @@
         "sourceBadge": "LINKEDIN",
         "sourceUrl": "https://www.linkedin.com/showcase/google-cloud/",
         "headline": "Google BigQuery social narrative",
-        "summary": "Google Cloud 3,327,347 followers 3h Report this post Schrödinger migrated its computational modeling platform to Google Cloud to accelerate the discovery of new therapeutics and materials. By using Compute Engine and... Google is pulling the conversation toward AI-native analytics and cloud-first scale. Focus product should counter with a governed warehouse eng...",
-        "publishedAt": "2026-07-11T19:28:37.462Z",
+        "summary": "Google Cloud 3,327,358 followers 3h Report this post Schrödinger migrated its computational modeling platform to Google Cloud to accelerate the discovery of new therapeutics and materials. By using Compute Engine and... Google is pulling the conversation toward AI-native analytics and cloud-first scale. Focus product should counter with a governed warehouse eng...",
+        "publishedAt": "2026-07-11T19:39:32.352Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "freshnessLabel": "1 min ago",
@@ -1423,8 +1423,8 @@
         "sourceBadge": "LINKEDIN",
         "sourceUrl": "https://www.linkedin.com/company/amazon-web-services",
         "headline": "Amazon Redshift social narrative",
-        "summary": "Amazon Web Services (AWS) 10,901,118 followers 22h Report this post AWS Developers 65,604 followers 2d A year ago we launched AWS Builder Center as a home for the AWS community. 🎉🎂 Since then, you've submitted wishe... AWS is trying to keep modernization inside the AWS estate with lakehouse SQL, performance, and migration language. Focus product should counte...",
-        "publishedAt": "2026-07-11T19:28:36.992Z",
+        "summary": "Amazon Web Services (AWS) 10,901,137 followers 22h Report this post AWS Developers 65,604 followers 2d A year ago we launched AWS Builder Center as a home for the AWS community. 🎉🎂 Since then, you've submitted wishe... AWS is trying to keep modernization inside the AWS estate with lakehouse SQL, performance, and migration language. Focus product should counte...",
+        "publishedAt": "2026-07-11T19:39:32.613Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "freshnessLabel": "1 min ago",
@@ -1442,8 +1442,8 @@
         "sourceBadge": "LINKEDIN",
         "sourceUrl": "https://www.linkedin.com/showcase/microsoft-azure/",
         "headline": "Azure Synapse social narrative",
-        "summary": "Microsoft Azure 1,144,646 followers 23h Report this post Fireworks AI is helping teams scale AI applications with a production platform for open-weight models, supporting world-class inference, fine-tuning, and enterp... Microsoft's message keeps drifting toward a broader platform transition story. Focus product should use that to question focus and long-term p...",
-        "publishedAt": "2026-07-11T19:28:37.280Z",
+        "summary": "Microsoft Azure 1,144,656 followers 23h Report this post Fireworks AI is helping teams scale AI applications with a production platform for open-weight models, supporting world-class inference, fine-tuning, and enterp... Microsoft's message keeps drifting toward a broader platform transition story. Focus product should use that to question focus and long-term p...",
+        "publishedAt": "2026-07-11T19:39:32.383Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "freshnessLabel": "1 min ago",
@@ -1480,8 +1480,8 @@
         "sourceBadge": "LINKEDIN",
         "sourceUrl": "https://www.linkedin.com/company/teradata",
         "headline": "Teradata social narrative",
-        "summary": "Teradata 572,315 followers 2d Report this post 🌟 7 million individual forecasts. In-database. In production. A leading Latin American utility needed to forecast demand across energy, gas, and water for 2 million cust... Teradata is trying to retain enterprise credibility with hybrid and AI-at-scale language. Focus product should press on time-to-value, watsonx...",
-        "publishedAt": "2026-07-11T19:28:36.952Z",
+        "summary": "Teradata 572,319 followers 2d Report this post 🌟 7 million individual forecasts. In-database. In production. A leading Latin American utility needed to forecast demand across energy, gas, and water for 2 million cust... Teradata is trying to retain enterprise credibility with hybrid and AI-at-scale language. Focus product should press on time-to-value, watsonx...",
+        "publishedAt": "2026-07-11T19:39:32.770Z",
         "coverageType": "live",
         "coverageLabel": "Live",
         "freshnessLabel": "1 min ago",
@@ -1682,7 +1682,7 @@
   "propelInsights": {
     "propelLocked": true,
     "meta": {
-      "generatedAt": "2026-07-11T19:28:35.761Z",
+      "generatedAt": "2026-07-11T19:39:31.046Z",
       "productName": "IBM Netezza",
       "competitors": [
         "Databricks",
@@ -1704,7 +1704,7 @@
         "snippet": "Netezza plays a critical role in helping enterprises bring performance into modern lakehouse architectures. Built for workloads where speed, concurrency, and reliability are essential, Netezza pairs high performance with flexibility across deployment models — SaaS, BYOC (AWS & Azure), and on-premises appliance. Integration with open table formats (Apache Iceberg, Parquet) and REST catalog capabilities ensures full lakehouse interoperability while preserving architectural freedom.",
         "url": "https://www.ibm.com/think/insights/lakehouse-not-enough-case-for-performance-first-analytics",
         "source": "marketing",
-        "publishedAt": "2026-07-11T19:28:35.761Z",
+        "publishedAt": "2026-07-11T19:39:31.047Z",
         "category": "positioning",
         "distance": 0,
         "propelSourced": true,
@@ -1720,7 +1720,7 @@
         "snippet": "IBM Netezza delivers deep analytics, BI, and AI/ML through a unified warehouse. Integration with open table and open data formats (Apache Iceberg, Parquet) plus native Cloud Object Store support for cost efficiency. Seamless dbt load support, faster queries at scale, and hybrid flexibility across appliance, SaaS, and BYOC. Now available on AWS and Microsoft Azure.",
         "url": "https://www.ibm.com/products/netezza",
         "source": "marketing",
-        "publishedAt": "2026-07-11T19:28:35.761Z",
+        "publishedAt": "2026-07-11T19:39:31.047Z",
         "category": "positioning",
         "distance": 0,
         "propelSourced": true,
@@ -1736,7 +1736,7 @@
         "snippet": "Snowflake maintains 400+ partner ecosystem and Cortex AI/ML capabilities. Its cloud-native architecture and custom SQL engine optimize performance vs. legacy tech, BUT proprietary design risks vendor lock-in and excludes on-premises deployment. Key IBM counter: open architecture, hybrid control, and 30–40% cost reduction through workload offload to watsonx.data lakehouse without replacing the existing warehouse.",
         "url": "https://ibm.seismic.com/Link/Content/DCT3qFJGqhDX7GmX8g3489BQbgPV",
         "source": "seismic",
-        "publishedAt": "2026-07-11T19:28:35.761Z",
+        "publishedAt": "2026-07-11T19:39:31.047Z",
         "category": "competitive",
         "distance": 0,
         "propelSourced": true,
@@ -1752,7 +1752,7 @@
         "snippet": "Snowflake launched granular warehouse-level and cloud services cost visibility (GA March 2026) with automatic cost allocation via tags — integrated with Cloudability. IBM counter: Netezza's cost-predictable deployment model with BYOC and on-prem control avoids the variable Snowflake credit model that spikes as usage scales.",
         "url": "https://ibm.seismic.com/Link/Content/DCPMB4FVcRMWh8QR7f3PWhpgc4FP",
         "source": "seismic",
-        "publishedAt": "2026-07-11T19:28:35.761Z",
+        "publishedAt": "2026-07-11T19:39:31.047Z",
         "category": "competitive",
         "distance": 0,
         "propelSourced": true,
@@ -1768,7 +1768,7 @@
         "snippet": "Best-fit workloads for Netezza: (✓) Structured reporting — fast, predictable SQL; (✓) Model scoring with INZA — in-database scoring reduces movement; (✓) ML training/feature prep — INZA + Spark/watsonx integration; (✓) Geospatial analysis — built-in INZA functions; (✓) Cold/historical data — Iceberg + object storage; (✓) ELT pipelines — scalable transformation; (✓) Ad hoc exploratory query — low-latency SQL over native or Iceberg tables.",
         "url": "https://ibm.seismic.com/Link/Content/DCg4qhXDhf963GCGR4ccfRWjH3mj",
         "source": "seismic",
-        "publishedAt": "2026-07-11T19:28:35.761Z",
+        "publishedAt": "2026-07-11T19:39:31.047Z",
         "category": "capabilities",
         "distance": 0,
         "propelSourced": true,
@@ -1784,7 +1784,7 @@
         "snippet": "GA integration of Netezza on-premises (Cloud Pak for Data System) and Netezza SaaS with watsonx.data. Enables: connecting to Hive Metastore and querying Apache Iceberg tables on object storage; combining Iceberg (cold) with Netezza native (hot/warm) tables; optimizing workloads across Presto and Spark engines for price-performance. Brings new generative AI capabilities for Netezza customers via watsonx.data pipelines.",
         "url": "https://www.ibm.com/new/announcements/unify-and-share-data-across-netezza-and-watsonx-data-for-new-generative-ai-applications",
         "source": "ibm_docs",
-        "publishedAt": "2026-07-11T19:28:35.761Z",
+        "publishedAt": "2026-07-11T19:39:31.047Z",
         "category": "capabilities",
         "distance": 0,
         "propelSourced": true,
@@ -1800,7 +1800,7 @@
         "snippet": "Customer reference: Conestoga (1,100 employees, 4 US locations) operationalized business analytics and AI workloads using Netezza on AWS integrated with watsonx.data. Unified, accessible, and scalable analytics almost anywhere. Netezza makes data ready for IBM Cognos Analytics and AI workloads.",
         "url": "https://www.ibm.com/case-studies/conestoga-wood-specialties",
         "source": "marketing",
-        "publishedAt": "2026-07-11T19:28:35.761Z",
+        "publishedAt": "2026-07-11T19:39:31.047Z",
         "category": "integration",
         "distance": 0,
         "propelSourced": true,
@@ -1816,7 +1816,7 @@
         "snippet": "Key selling motions: (1) Target install base and competitor base customers with hybrid cloud intent; (2) Lead with Netezza differentiation: open-source (Iceberg/Spark/Presto C++), multiple fit-for-purpose query engines, in-database analytics, hybrid deployment; (3) Cross-sell entry point: watsonx.data for AI/gen AI data readiness; (4) Competitive: Snowflake (SaaS only, vendor lock-in), Databricks (lakehouse complexity), Teradata (cost, legacy). Key proof: data warehouse appliance category coined by Netezza.",
         "url": "https://ibm.seismic.com/Link/Content/DCdJcHB6g396682RbcGR4mcmFQ8P",
         "source": "seismic",
-        "publishedAt": "2026-07-11T19:28:35.761Z",
+        "publishedAt": "2026-07-11T19:39:31.047Z",
         "category": "enablement",
         "distance": 0,
         "propelSourced": true,
@@ -1836,7 +1836,7 @@
           "snippet": "Netezza plays a critical role in helping enterprises bring performance into modern lakehouse architectures. Built for workloads where speed, concurrency, and reliability are essential, Netezza pairs high performance with flexibility across deployment models — SaaS, BYOC (AWS & Azure), and on-premises appliance. Integration with open table formats (Apache Iceberg, Parquet) and REST catalog capabilities ensures full lakehouse interoperability while preserving architectural freedom.",
           "url": "https://www.ibm.com/think/insights/lakehouse-not-enough-case-for-performance-first-analytics",
           "source": "marketing",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "positioning",
           "distance": 0,
           "propelSourced": true,
@@ -1852,7 +1852,7 @@
           "snippet": "IBM Netezza delivers deep analytics, BI, and AI/ML through a unified warehouse. Integration with open table and open data formats (Apache Iceberg, Parquet) plus native Cloud Object Store support for cost efficiency. Seamless dbt load support, faster queries at scale, and hybrid flexibility across appliance, SaaS, and BYOC. Now available on AWS and Microsoft Azure.",
           "url": "https://www.ibm.com/products/netezza",
           "source": "marketing",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "positioning",
           "distance": 0,
           "propelSourced": true,
@@ -1868,7 +1868,7 @@
           "snippet": "Netezza must lean on strengths: (1) Hybrid and multi-cloud deployment — competitors promote multi-cloud but not true hybrid-cloud. (2) Multiple open-source components (Iceberg / Spark / Presto C++) for interoperability and cost optimization. (3) Differentiators: granular scaling, price-performance, in-database and geospatial analytics, speed, security & governance. (4) Tie of watsonx.data as AI entry point. Netezza competes in data warehouse and lakehouse market targeting install base, competitor base, and customers with cross-sell intent.",
           "url": "https://ibm.seismic.com/Link/Content/DCcgHhjVTGXjb8THpX4c236qVVWV",
           "source": "seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "positioning",
           "distance": 0,
           "propelSourced": true,
@@ -1889,7 +1889,7 @@
           "snippet": "Snowflake maintains 400+ partner ecosystem and Cortex AI/ML capabilities. Its cloud-native architecture and custom SQL engine optimize performance vs. legacy tech, BUT proprietary design risks vendor lock-in and excludes on-premises deployment. Key IBM counter: open architecture, hybrid control, and 30–40% cost reduction through workload offload to watsonx.data lakehouse without replacing the existing warehouse.",
           "url": "https://ibm.seismic.com/Link/Content/DCT3qFJGqhDX7GmX8g3489BQbgPV",
           "source": "seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "competitive",
           "distance": 0,
           "propelSourced": true,
@@ -1905,7 +1905,7 @@
           "snippet": "Snowflake launched granular warehouse-level and cloud services cost visibility (GA March 2026) with automatic cost allocation via tags — integrated with Cloudability. IBM counter: Netezza's cost-predictable deployment model with BYOC and on-prem control avoids the variable Snowflake credit model that spikes as usage scales.",
           "url": "https://ibm.seismic.com/Link/Content/DCPMB4FVcRMWh8QR7f3PWhpgc4FP",
           "source": "seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "competitive",
           "distance": 0,
           "propelSourced": true,
@@ -1921,7 +1921,7 @@
           "snippet": "IBM's sales play: augment Snowflake customers with a Data Lakehouse to offload specific workloads and reduce annual costs by 30–40%. Seamless shift with little-to-no code migration, keeping existing architecture intact with zero performance degradation. Target: Snowflake customers seeing costs rise sharply as usage scales.",
           "url": "https://ibm.seismic.com/Link/Content/DCX4gBJhRj27787XhVC4MPj3XCJB",
           "source": "seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "competitive",
           "distance": 0,
           "propelSourced": true,
@@ -1942,7 +1942,7 @@
           "snippet": "Best-fit workloads for Netezza: (✓) Structured reporting — fast, predictable SQL; (✓) Model scoring with INZA — in-database scoring reduces movement; (✓) ML training/feature prep — INZA + Spark/watsonx integration; (✓) Geospatial analysis — built-in INZA functions; (✓) Cold/historical data — Iceberg + object storage; (✓) ELT pipelines — scalable transformation; (✓) Ad hoc exploratory query — low-latency SQL over native or Iceberg tables.",
           "url": "https://ibm.seismic.com/Link/Content/DCg4qhXDhf963GCGR4ccfRWjH3mj",
           "source": "seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "capabilities",
           "distance": 0,
           "propelSourced": true,
@@ -1958,7 +1958,7 @@
           "snippet": "GA integration of Netezza on-premises (Cloud Pak for Data System) and Netezza SaaS with watsonx.data. Enables: connecting to Hive Metastore and querying Apache Iceberg tables on object storage; combining Iceberg (cold) with Netezza native (hot/warm) tables; optimizing workloads across Presto and Spark engines for price-performance. Brings new generative AI capabilities for Netezza customers via watsonx.data pipelines.",
           "url": "https://www.ibm.com/new/announcements/unify-and-share-data-across-netezza-and-watsonx-data-for-new-generative-ai-applications",
           "source": "ibm_docs",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "capabilities",
           "distance": 0,
           "propelSourced": true,
@@ -1974,7 +1974,7 @@
           "snippet": "2026 roadmap highlights: AI-enabled connector creation (production-ready in minutes, open-source, no IBM infra dependency); Snowflake Partner Connect (batch, streaming, replication); AWS Databricks native connector; SAP ECC/ERP, SAP S/4HANA, SAP BW & BW/4HANA; Unstructured Data Integration (Q2 2026); MCP Server for LLM infrastructure integration; Python SDK; streaming scheduling and data observability integration.",
           "url": "https://ibm.seismic.com/Link/Content/DC2X7Gb8gcgXdGFMGJD74dd3VpqP",
           "source": "seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "capabilities",
           "distance": 0,
           "propelSourced": true,
@@ -1995,7 +1995,7 @@
           "snippet": "Customer reference: Conestoga (1,100 employees, 4 US locations) operationalized business analytics and AI workloads using Netezza on AWS integrated with watsonx.data. Unified, accessible, and scalable analytics almost anywhere. Netezza makes data ready for IBM Cognos Analytics and AI workloads.",
           "url": "https://www.ibm.com/case-studies/conestoga-wood-specialties",
           "source": "marketing",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "integration",
           "distance": 0,
           "propelSourced": true,
@@ -2011,7 +2011,7 @@
           "snippet": "Connect Netezza Performance Server for Cloud Pak for Data System to watsonx.data: connect to Hive Metastore (HMS); query Apache Iceberg tables on S3 object store; combine Iceberg tables with Netezza native tables; cross-instance data sharing via shared metadata; read/write to Apache Iceberg on cost-efficient object storage on-premises or in cloud.",
           "url": "https://www.ibm.com/docs/en/netezza?topic=10x-integrating-cloud-pak-data-system-watsonxdata",
           "source": "ibm_docs",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "integration",
           "distance": 0,
           "propelSourced": true,
@@ -2032,7 +2032,7 @@
           "snippet": "Key selling motions: (1) Target install base and competitor base customers with hybrid cloud intent; (2) Lead with Netezza differentiation: open-source (Iceberg/Spark/Presto C++), multiple fit-for-purpose query engines, in-database analytics, hybrid deployment; (3) Cross-sell entry point: watsonx.data for AI/gen AI data readiness; (4) Competitive: Snowflake (SaaS only, vendor lock-in), Databricks (lakehouse complexity), Teradata (cost, legacy). Key proof: data warehouse appliance category coined by Netezza.",
           "url": "https://ibm.seismic.com/Link/Content/DCdJcHB6g396682RbcGR4mcmFQ8P",
           "source": "seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "enablement",
           "distance": 0,
           "propelSourced": true,
@@ -2048,7 +2048,7 @@
           "snippet": "North American Bank migrating legacy Netezza Mako systems to Netezza Performance Server: 2–3x performance improvement, removed I/O bottlenecks, 100% Netezza compatibility, future cloud migration path. Also leveraging Watson Knowledge Catalog and data virtualization on CP4D. Applicable verticals: Banking & Financial Markets, regulated industries needing risk-free warehouse modernization.",
           "url": "https://ibm.seismic.com/Link/Content/DCVQXRJqJ7bcmGWPTJ4MHggdW9Pj",
           "source": "seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "category": "enablement",
           "distance": 0,
           "propelSourced": true,
@@ -2086,7 +2086,7 @@
         },
         "market": {
           "competitor": "Snowflake",
-          "publishedAt": "2026-07-11T19:28:36.510Z",
+          "publishedAt": "2026-07-11T19:39:31.348Z",
           "priority": "1 min ago",
           "title": "Migrate to the AI Data Cloud with Snowflake",
           "summary": "Simplify cloud migration with Snowflake’s secure, scalable platform—accelerate time to value and modernize analytics without the complexity of replatforming. This is Snowflake trying to win the modernization brief through managed warehouse execution, AI momentum, and ease. Focus product should answer on lakehouse-ready performance, TCO predictability, and gover...",
@@ -2094,7 +2094,7 @@
           "citations": [
             {
               "competitor": "Snowflake",
-              "publishedAt": "2026-07-11T19:28:36.510Z",
+              "publishedAt": "2026-07-11T19:39:31.348Z",
               "sourceLabel": "Website",
               "sourceBadge": "WEBSITE",
               "sourceUrl": "https://www.snowflake.com/en/migrate-to-the-cloud/",
@@ -2114,28 +2114,28 @@
           "recommendation": "Shift focus to differentiation and proof: turn the capabilities you already lead on into messaging and comparison assets."
         },
         "positioning": {
-          "competitor": "Google BigQuery",
-          "publishedAt": "2026-07-11T19:28:37.462Z",
+          "competitor": "Amazon Redshift",
+          "publishedAt": "2026-07-11T19:39:32.613Z",
           "priority": "Primary angle",
-          "title": "Counter BigQuery on AI-led modernization",
-          "summary": "Google BigQuery's latest linkedin signal is pressing on AI-led modernization. That is exactly where Focus product should respond with lakehouse-ready performance, governed simplicity, and clearer workload-fit language.",
+          "title": "Counter Redshift on migration acceleration",
+          "summary": "Amazon Redshift's latest linkedin signal is pressing on migration acceleration. That is exactly where Focus product should respond with lakehouse-ready performance, governed simplicity, and clearer workload-fit language.",
           "recommendation": "Answer the social narrative with a short executive POV and a seller-ready one-pager before the theme settles into active deals.",
           "tags": [
-            "BigQuery",
+            "Redshift",
             "LINKEDIN",
             "1 min ago"
           ],
           "citations": [
             {
-              "id": "market-google-bigquery-linkedin-google-bigquery-social-narrative",
-              "competitor": "Google BigQuery",
+              "id": "market-amazon-redshift-linkedin-amazon-redshift-social-narrative",
+              "competitor": "Amazon Redshift",
               "sourceLabel": "LinkedIn",
               "sourceBadge": "LINKEDIN",
-              "sourceUrl": "https://www.linkedin.com/showcase/google-cloud/",
+              "sourceUrl": "https://www.linkedin.com/company/amazon-web-services",
               "coverageType": "live",
               "coverageLabel": "Live",
               "dateLabel": "1 min ago",
-              "evidenceScore": 98
+              "evidenceScore": 97
             }
           ],
           "coverageType": "live",
@@ -2196,7 +2196,7 @@
         {
           "id": "live-content-market-google-bigquery-web-bigquery-ai-data-platform-edw",
           "competitor": "Google BigQuery",
-          "publishedAt": "2026-07-11T19:28:36.605Z",
+          "publishedAt": "2026-07-11T19:39:32.376Z",
           "icon": "[]",
           "title": "BigQuery: BigQuery | AI data platform | EDW - where AI-led modernization meets a Focus product response",
           "summary": "BigQuery is the autonomous data and AI platform, automating the entire data life cycle so you can go from data to AI to action faster. Google is pulling the conversation toward AI-native... Map this to comparison landing page with a direct Focus product response to Google BigQuery Website.",
@@ -2226,41 +2226,9 @@
           "outline": "DRAFT OUTLINE - Comparison Landing Page\n\nWorking title: BigQuery: BigQuery | AI data platform | EDW - where AI-led modernization meets a Focus product response\n\nWhy now\n- Latest source: Google BigQuery Website\n- Fresh signal: BigQuery is the autonomous data and AI platform, automating the entire data life cycle so you can go from data to AI to action faster. Google is pu...\n\nSection 1 - What Google BigQuery is telling the market\nSection 2 - Why buyers still need the differentiated IBM solution buyers should evaluate against current competitor claims\nSection 3 - Where Focus product should redirect the evaluation\n- validated product proof, buyer-fit clarity, and competitor-specific objection handling\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- IBM trust for governed workloads\nSection 4 - Questions buyers should ask before following the competitor narrative\n\nPublishing guidance\n- Platform: Comparison Landing Page\n- Primary CTA: Book a Focus product architecture briefing\n- Reuse: seller snippet + social post + comparison slide"
         },
         {
-          "id": "live-content-market-snowflake-web-migrate-to-the-ai-data-cloud-with-snowflake",
-          "competitor": "Snowflake",
-          "publishedAt": "2026-07-11T19:28:36.510Z",
-          "icon": "[]",
-          "title": "Snowflake: Migrate to the AI Data Cloud with Snowflake - where AI-led modernization meets a Focus product response",
-          "summary": "Simplify cloud migration with Snowflake’s secure, scalable platform—accelerate time to value and modernize analytics without the complexity of replatforming. This is Snowflake trying to w... Map this to comparison landing page with a direct Focus product response to Snowflake Website.",
-          "platform": "Comparison Landing Page",
-          "status": "New",
-          "tags": [
-            "Comparison Landing Page",
-            "Counter-Snowflake",
-            "WEBSITE",
-            "1 min ago"
-          ],
-          "citations": [
-            {
-              "id": "market-snowflake-web-migrate-to-the-ai-data-cloud-with-snowflake",
-              "competitor": "Snowflake",
-              "sourceLabel": "Website",
-              "sourceBadge": "WEBSITE",
-              "sourceUrl": "https://www.snowflake.com/en/migrate-to-the-cloud/",
-              "coverageType": "live",
-              "coverageLabel": "Live",
-              "dateLabel": "1 min ago",
-              "evidenceScore": 112
-            }
-          ],
-          "coverageType": "live",
-          "coverageLabel": "Live",
-          "outline": "DRAFT OUTLINE - Comparison Landing Page\n\nWorking title: Snowflake: Migrate to the AI Data Cloud with Snowflake - where AI-led modernization meets a Focus product response\n\nWhy now\n- Latest source: Snowflake Website\n- Fresh signal: Simplify cloud migration with Snowflake’s secure, scalable platform—accelerate time to value and modernize analytics without the complexity of repl...\n\nSection 1 - What Snowflake is telling the market\nSection 2 - Why buyers still need the differentiated IBM solution buyers should evaluate against current competitor claims\nSection 3 - Where Focus product should redirect the evaluation\n- validated product proof, buyer-fit clarity, and competitor-specific objection handling\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- IBM trust for governed workloads\nSection 4 - Questions buyers should ask before following the competitor narrative\n\nPublishing guidance\n- Platform: Comparison Landing Page\n- Primary CTA: Book a Focus product architecture briefing\n- Reuse: seller snippet + social post + comparison slide"
-        },
-        {
           "id": "live-content-market-amazon-redshift-web-cloud-data-warehouse-amazon-redshift-features-aw",
           "competitor": "Amazon Redshift",
-          "publishedAt": "2026-07-11T19:28:36.494Z",
+          "publishedAt": "2026-07-11T19:39:32.312Z",
           "icon": "[]",
           "title": "Redshift: Cloud Data Warehouse – Amazon Redshift Features – AWS - where migration acceleration meets a Focus product response",
           "summary": "Learn about Amazon Redshift features that make it the fastest and most popular cloud data warehouse. Amazon Redshift is data lake and AWS integrated, secure, and easy to manage. AWS is tr... Map this to comparison landing page with a direct Focus product response to Amazon Redshift Website.",
@@ -2292,7 +2260,7 @@
         {
           "id": "live-content-market-azure-synapse-web-azure-synapse-analytics-microsoft-azure",
           "competitor": "Azure Synapse",
-          "publishedAt": "2026-07-11T19:28:36.386Z",
+          "publishedAt": "2026-07-11T19:39:31.397Z",
           "icon": "[]",
           "title": "Synapse: Azure Synapse Analytics | Microsoft Azure - where structured analytics decisions meets a Focus product response",
           "summary": "Accelerate time to insight across enterprise data warehouses and big data systems. Bring together enterprise SQL data warehousing and big data analytics services. Microsoft's message keep... Map this to comparison landing page with a direct Focus product response to Azure Synapse Website.",
@@ -2320,6 +2288,38 @@
           "coverageType": "live",
           "coverageLabel": "Live",
           "outline": "DRAFT OUTLINE - Comparison Landing Page\n\nWorking title: Synapse: Azure Synapse Analytics | Microsoft Azure - where structured analytics decisions meets a Focus product response\n\nWhy now\n- Latest source: Azure Synapse Website\n- Fresh signal: Accelerate time to insight across enterprise data warehouses and big data systems. Bring together enterprise SQL data warehousing and big data anal...\n\nSection 1 - What Azure Synapse is telling the market\nSection 2 - Why buyers still need the differentiated IBM solution buyers should evaluate against current competitor claims\nSection 3 - Where Focus product should redirect the evaluation\n- validated product proof, buyer-fit clarity, and competitor-specific objection handling\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- IBM trust for governed workloads\nSection 4 - Questions buyers should ask before following the competitor narrative\n\nPublishing guidance\n- Platform: Comparison Landing Page\n- Primary CTA: Book a Focus product architecture briefing\n- Reuse: seller snippet + social post + comparison slide"
+        },
+        {
+          "id": "live-content-market-snowflake-web-migrate-to-the-ai-data-cloud-with-snowflake",
+          "competitor": "Snowflake",
+          "publishedAt": "2026-07-11T19:39:31.348Z",
+          "icon": "[]",
+          "title": "Snowflake: Migrate to the AI Data Cloud with Snowflake - where AI-led modernization meets a Focus product response",
+          "summary": "Simplify cloud migration with Snowflake’s secure, scalable platform—accelerate time to value and modernize analytics without the complexity of replatforming. This is Snowflake trying to w... Map this to comparison landing page with a direct Focus product response to Snowflake Website.",
+          "platform": "Comparison Landing Page",
+          "status": "New",
+          "tags": [
+            "Comparison Landing Page",
+            "Counter-Snowflake",
+            "WEBSITE",
+            "1 min ago"
+          ],
+          "citations": [
+            {
+              "id": "market-snowflake-web-migrate-to-the-ai-data-cloud-with-snowflake",
+              "competitor": "Snowflake",
+              "sourceLabel": "Website",
+              "sourceBadge": "WEBSITE",
+              "sourceUrl": "https://www.snowflake.com/en/migrate-to-the-cloud/",
+              "coverageType": "live",
+              "coverageLabel": "Live",
+              "dateLabel": "1 min ago",
+              "evidenceScore": 112
+            }
+          ],
+          "coverageType": "live",
+          "coverageLabel": "Live",
+          "outline": "DRAFT OUTLINE - Comparison Landing Page\n\nWorking title: Snowflake: Migrate to the AI Data Cloud with Snowflake - where AI-led modernization meets a Focus product response\n\nWhy now\n- Latest source: Snowflake Website\n- Fresh signal: Simplify cloud migration with Snowflake’s secure, scalable platform—accelerate time to value and modernize analytics without the complexity of repl...\n\nSection 1 - What Snowflake is telling the market\nSection 2 - Why buyers still need the differentiated IBM solution buyers should evaluate against current competitor claims\nSection 3 - Where Focus product should redirect the evaluation\n- validated product proof, buyer-fit clarity, and competitor-specific objection handling\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- IBM trust for governed workloads\nSection 4 - Questions buyers should ask before following the competitor narrative\n\nPublishing guidance\n- Platform: Comparison Landing Page\n- Primary CTA: Book a Focus product architecture briefing\n- Reuse: seller snippet + social post + comparison slide"
         },
         {
           "id": "live-content-market-databricks-news-dx-foundation-announces-official-databricks-part",
@@ -2420,7 +2420,7 @@
         {
           "id": "propel-content-prop-comp-1",
           "competitor": "IBM Seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "icon": "★",
           "title": "watsonx.data Competitive and Objection Handling — Snowflake",
           "summary": "Snowflake maintains 400+ partner ecosystem and Cortex AI/ML capabilities. Its cloud-native architecture and custom SQL engine optimize performance vs. legacy tech, BUT proprietary design risks vendor lock-in and exclu... — Source: seismic. Use this IBM-authoritative content as the research foundation for Focus product PMM assets.",
@@ -2449,7 +2449,7 @@
         {
           "id": "propel-content-prop-comp-2",
           "competitor": "IBM Seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "icon": "★",
           "title": "Snowflake Q1 2026: Cost Insights & Tag Support",
           "summary": "Snowflake launched granular warehouse-level and cloud services cost visibility (GA March 2026) with automatic cost allocation via tags — integrated with Cloudability. IBM counter: Netezza's cost-predictable deployment... — Source: seismic. Use this IBM-authoritative content as the research foundation for Focus product PMM assets.",
@@ -2478,7 +2478,7 @@
         {
           "id": "propel-content-prop-comp-3",
           "competitor": "IBM Seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "icon": "★",
           "title": "Snowflake Augmentation: Cut Snowflake Costs 30–40% Without Replacing Your Warehouse",
           "summary": "IBM's sales play: augment Snowflake customers with a Data Lakehouse to offload specific workloads and reduce annual costs by 30–40%. Seamless shift with little-to-no code migration, keeping existing architecture intac... — Source: seismic. Use this IBM-authoritative content as the research foundation for Focus product PMM assets.",
@@ -2507,7 +2507,7 @@
         {
           "id": "propel-content-prop-pos-1",
           "competitor": "IBM.com",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "icon": "★",
           "title": "Why the lakehouse alone isn't enough: The case for performance-first analytics",
           "summary": "Netezza plays a critical role in helping enterprises bring performance into modern lakehouse architectures. Built for workloads where speed, concurrency, and reliability are essential, Netezza pairs high performance w... — Source: marketing. Use this IBM-authoritative content as the research foundation for Focus product PMM assets.",
@@ -2545,7 +2545,7 @@
         {
           "id": "propel-pmm-prop-enb-1",
           "competitor": "Enablement",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "icon": "★",
           "title": "Netezza 101 Sales Enablement for Business Partners — Sep 2025",
           "summary": "Key selling motions: (1) Target install base and competitor base customers with hybrid cloud intent; (2) Lead with Netezza differentiation: open-source (Iceberg/Spark/Presto C++), multiple fit-for-purpose query engine... Source: IBM seismic. Use this as the foundation for a sales enablement asset grounded in IBM-authoritative content.",
@@ -2573,7 +2573,7 @@
         {
           "id": "propel-pmm-prop-enb-2",
           "competitor": "Enablement",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "icon": "★",
           "title": "Netezza Customer Use Cases — North American Bank Modernization",
           "summary": "North American Bank migrating legacy Netezza Mako systems to Netezza Performance Server: 2–3x performance improvement, removed I/O bottlenecks, 100% Netezza compatibility, future cloud migration path. Also leveraging... Source: IBM seismic. Use this as the foundation for a sales enablement asset grounded in IBM-authoritative content.",
@@ -2601,7 +2601,7 @@
         {
           "id": "propel-pmm-prop-comp-1",
           "competitor": "Competitive",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "icon": "★",
           "title": "watsonx.data Competitive and Objection Handling — Snowflake",
           "summary": "Snowflake maintains 400+ partner ecosystem and Cortex AI/ML capabilities. Its cloud-native architecture and custom SQL engine optimize performance vs. legacy tech, BUT proprietary design risks vendor lock-in and exclu... Source: IBM seismic. Use this as the foundation for a battle card / objection handler grounded in IBM-authoritative content.",
@@ -2627,40 +2627,9 @@
           "propelSourced": true
         },
         {
-          "id": "live-pmm-discovery-question-sheet-market-google-bigquery-linkedin-google-bigquery-social-narrative",
-          "competitor": "Google BigQuery",
-          "publishedAt": "2026-07-11T19:28:37.462Z",
-          "icon": "?",
-          "title": "Discovery question sheet: Focus product vs BigQuery",
-          "summary": "Give sellers sharper discovery questions that expose workload, governance, cost, migration, and AI-readiness tradeoffs. Trigger: Google BigQuery's linkedin evidence is pressing on AI-led modernization.",
-          "status": "Live",
-          "tags": [
-            "Discovery question sheet",
-            "Qualification questions for live opportunities and executive discovery",
-            "Counter-BigQuery",
-            "Live"
-          ],
-          "citations": [
-            {
-              "id": "market-google-bigquery-linkedin-google-bigquery-social-narrative",
-              "competitor": "Google BigQuery",
-              "sourceLabel": "LinkedIn",
-              "sourceBadge": "LINKEDIN",
-              "sourceUrl": "https://www.linkedin.com/showcase/google-cloud/",
-              "coverageType": "live",
-              "coverageLabel": "Live",
-              "dateLabel": "1 min ago",
-              "evidenceScore": 98
-            }
-          ],
-          "coverageType": "live",
-          "coverageLabel": "Live",
-          "outline": "OUTLINE - Discovery question sheet\n\nAsset purpose\n- Qualification questions for live opportunities and executive discovery\n- Current trigger: Google BigQuery LinkedIn\n- Evidence summary: Google Cloud 3,327,347 followers 3h Report this post Schrödinger migrated its computational modeling platform to Google Cloud to accelerate the discovery of...\n\nAudience\n- Primary: sellers and PMMs working active competitive opportunities\n- Secondary: product leadership and solution architects who need source-backed talking points\n\nCore sections\n1. Competitor claim or market move\n2. Why buyers may believe it\n3. Focus product response: the differentiated IBM solution buyers should evaluate against current competitor claims\n4. Objection handlers and proof points\n5. CTA and source link for validation\n\nProduct relevance lens\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- Response focus: validated product proof, buyer-fit clarity, and competitor-specific objection handling\n\nPMM asset guidance used\n- HubSpot sales content checklist: Sales-facing product content should include comparison, proof, objection handling, demo, and enablement assets that help sellers close active deals.\n- Simon-Kucher product marketing strategy: PMM recommendations should stay tied to customer insight, positioning, pricing/value, sales enablement, and continuous market feedback.\n- Tribe Design Works marketing assets: Recommended assets should be practical market-facing or sales-facing deliverables, such as one-pagers, decks, case proof, landing pages, and campaign kits.\n\nSource citations\n- https://www.linkedin.com/showcase/google-cloud/\n\nNext step\n- Draft the asset with exact source citations, then refresh after the crawler produces a newer live signal."
-        },
-        {
           "id": "live-pmm-objection-faq-market-databricks-linkedin-databricks-social-narrative",
           "competitor": "Databricks",
-          "publishedAt": "2026-07-11T19:28:37.453Z",
+          "publishedAt": "2026-07-11T19:39:32.382Z",
           "icon": "?",
           "title": "Objection FAQ: Focus product vs Databricks",
           "summary": "Give sellers a tight FAQ for the objections surfaced by review and social evidence. Trigger: Databricks' linkedin evidence is pressing on AI-led modernization.",
@@ -2686,12 +2655,12 @@
           ],
           "coverageType": "live",
           "coverageLabel": "Live",
-          "outline": "OUTLINE - Objection FAQ\n\nAsset purpose\n- Field FAQ for sales conversations and deal blockers\n- Current trigger: Databricks LinkedIn\n- Evidence summary: Databricks 1,295,078 followers 3h Report this post As AI teams adopt more autonomous agents, one challenge becomes clear: they don't naturally work together....\n\nAudience\n- Primary: sellers and PMMs working active competitive opportunities\n- Secondary: product leadership and solution architects who need source-backed talking points\n\nCore sections\n1. Competitor claim or market move\n2. Why buyers may believe it\n3. Focus product response: the differentiated IBM solution buyers should evaluate against current competitor claims\n4. Objection handlers and proof points\n5. CTA and source link for validation\n\nProduct relevance lens\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- Response focus: validated product proof, buyer-fit clarity, and competitor-specific objection handling\n\nPMM asset guidance used\n- HubSpot sales content checklist: Sales-facing product content should include comparison, proof, objection handling, demo, and enablement assets that help sellers close active deals.\n- Simon-Kucher product marketing strategy: PMM recommendations should stay tied to customer insight, positioning, pricing/value, sales enablement, and continuous market feedback.\n- Tribe Design Works marketing assets: Recommended assets should be practical market-facing or sales-facing deliverables, such as one-pagers, decks, case proof, landing pages, and campaign kits.\n\nSource citations\n- https://www.linkedin.com/company/databricks\n\nNext step\n- Draft the asset with exact source citations, then refresh after the crawler produces a newer live signal."
+          "outline": "OUTLINE - Objection FAQ\n\nAsset purpose\n- Field FAQ for sales conversations and deal blockers\n- Current trigger: Databricks LinkedIn\n- Evidence summary: Databricks 1,295,085 followers 3h Report this post As AI teams adopt more autonomous agents, one challenge becomes clear: they don't naturally work together....\n\nAudience\n- Primary: sellers and PMMs working active competitive opportunities\n- Secondary: product leadership and solution architects who need source-backed talking points\n\nCore sections\n1. Competitor claim or market move\n2. Why buyers may believe it\n3. Focus product response: the differentiated IBM solution buyers should evaluate against current competitor claims\n4. Objection handlers and proof points\n5. CTA and source link for validation\n\nProduct relevance lens\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- Response focus: validated product proof, buyer-fit clarity, and competitor-specific objection handling\n\nPMM asset guidance used\n- HubSpot sales content checklist: Sales-facing product content should include comparison, proof, objection handling, demo, and enablement assets that help sellers close active deals.\n- Simon-Kucher product marketing strategy: PMM recommendations should stay tied to customer insight, positioning, pricing/value, sales enablement, and continuous market feedback.\n- Tribe Design Works marketing assets: Recommended assets should be practical market-facing or sales-facing deliverables, such as one-pagers, decks, case proof, landing pages, and campaign kits.\n\nSource citations\n- https://www.linkedin.com/company/databricks\n\nNext step\n- Draft the asset with exact source citations, then refresh after the crawler produces a newer live signal."
         },
         {
           "id": "live-pmm-counter-market-databricks-linkedin-databricks-social-narrative",
           "competitor": "Databricks",
-          "publishedAt": "2026-07-11T19:28:37.453Z",
+          "publishedAt": "2026-07-11T19:39:32.382Z",
           "icon": "!",
           "title": "Counter-post: Databricks linkedin narrative",
           "summary": "Create a short executive-ready post that answers Databricks' latest linkedin message with a clearer Focus product point of view.",
@@ -2728,7 +2697,7 @@
             "Azure Synapse",
             "Teradata"
           ],
-          "publishedAt": "2026-07-11T19:28:37.453Z",
+          "publishedAt": "2026-07-11T19:39:32.382Z",
           "icon": "=",
           "title": "CIO briefing: live competitive position",
           "summary": "Executive-ready narrative covering the current pressure set across Databricks, Snowflake, BigQuery, Redshift, Synapse, Teradata.",
@@ -2786,7 +2755,7 @@
           ],
           "coverageType": "live",
           "coverageLabel": "Live",
-          "outline": "OUTLINE - CIO briefing\n\nSlide 1 - What changed in the last refresh window\n- Databricks: Databricks 1,295,078 followers 3h Report this post As AI teams adopt more autonomous agents, one challenge...\n- Snowflake: Snowflake 1,346,345 followers 1d Report this post What happens when you layer 45 years of curated industry...\n- Google BigQuery: Google Cloud 3,327,347 followers 3h Report this post Schrödinger migrated its computational modeling platfo...\n- Amazon Redshift: Amazon Web Services (AWS) 10,901,118 followers 22h Report this post AWS Developers 65,604 followers 2d A ye...\n- Azure Synapse: Microsoft Azure 1,144,646 followers 23h Report this post Fireworks AI is helping teams scale AI application...\n- Teradata: Teradata 572,315 followers 2d Report this post 🌟 7 million individual forecasts. In-database. In productio...\n\nSlide 2 - Where Focus product should lead\n- the differentiated IBM solution buyers should evaluate against current competitor claims\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- IBM trust and governance proof\n\nSlide 3 - What to say in active deals\n- Translate competitor claims into buyer decision criteria\n- Use public citations and proof, not unsupported parity language\n- Keep the response anchored in validated product proof, buyer-fit clarity, and competitor-specific objection handling\n\nSlide 4 - Immediate asks for PMM and sales\n- Update battle cards\n- Refresh web proof\n- Push one executive POV asset this week"
+          "outline": "OUTLINE - CIO briefing\n\nSlide 1 - What changed in the last refresh window\n- Databricks: Databricks 1,295,085 followers 3h Report this post As AI teams adopt more autonomous agents, one challenge...\n- Snowflake: Snowflake 1,346,352 followers 1d Report this post What happens when you layer 45 years of curated industry...\n- Google BigQuery: Google Cloud 3,327,358 followers 3h Report this post Schrödinger migrated its computational modeling platfo...\n- Amazon Redshift: Amazon Web Services (AWS) 10,901,137 followers 22h Report this post AWS Developers 65,604 followers 2d A ye...\n- Azure Synapse: Microsoft Azure 1,144,656 followers 23h Report this post Fireworks AI is helping teams scale AI application...\n- Teradata: Teradata 572,319 followers 2d Report this post 🌟 7 million individual forecasts. In-database. In productio...\n\nSlide 2 - Where Focus product should lead\n- the differentiated IBM solution buyers should evaluate against current competitor claims\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- IBM trust and governance proof\n\nSlide 3 - What to say in active deals\n- Translate competitor claims into buyer decision criteria\n- Use public citations and proof, not unsupported parity language\n- Keep the response anchored in validated product proof, buyer-fit clarity, and competitor-specific objection handling\n\nSlide 4 - Immediate asks for PMM and sales\n- Update battle cards\n- Refresh web proof\n- Push one executive POV asset this week"
         },
         {
           "id": "live-pmm-analyst-briefing",
@@ -2798,7 +2767,7 @@
             "Azure Synapse",
             "Teradata"
           ],
-          "publishedAt": "2026-07-11T19:28:37.453Z",
+          "publishedAt": "2026-07-11T19:39:32.382Z",
           "icon": "^",
           "title": "Analyst briefing topics - live narrative shifts",
           "summary": "Package the latest competitive narratives into a concise analyst briefing memo so category framing includes the differentiated IBM solution buyers should evaluate against current competitor claims.",
@@ -2859,40 +2828,9 @@
           "outline": "OUTLINE - Analyst briefing memo\n\nTheme 1 - Why buyers still need the differentiated IBM solution buyers should evaluate against current competitor claims\nTheme 2 - Which competitor messages are gaining share of voice now\n- Databricks: AI-led modernization\n- Snowflake: AI-led modernization\n- Google BigQuery: AI-led modernization\n- Amazon Redshift: migration acceleration\n- Azure Synapse: AI-led modernization\n- Teradata: AI-led modernization\n\nTheme 3 - Which buyer risks Focus product should own\nTheme 4 - Why validated product proof, buyer-fit clarity, and competitor-specific objection handling should stay in evaluation criteria\nTheme 5 - What IBM wants analysts to notice in Focus product's current story\n\nDeliverables\n- 1-page memo\n- 5 talking points\n- follow-up proof links"
         },
         {
-          "id": "live-pmm-competitive-landing-page-market-snowflake-linkedin-snowflake-social-narrative",
-          "competitor": "Snowflake",
-          "publishedAt": "2026-07-11T19:28:36.909Z",
-          "icon": "[]",
-          "title": "Competitive landing page refresh: Focus product vs Snowflake",
-          "summary": "Refresh a competitive page that converts the source claim into buyer questions, proof blocks, and a specific CTA. Trigger: Snowflake's linkedin evidence is pressing on AI-led modernization.",
-          "status": "Live",
-          "tags": [
-            "Competitive landing page",
-            "Buyer-facing landing page with clear comparison and proof",
-            "Counter-Snowflake",
-            "Live"
-          ],
-          "citations": [
-            {
-              "id": "market-snowflake-linkedin-snowflake-social-narrative",
-              "competitor": "Snowflake",
-              "sourceLabel": "LinkedIn",
-              "sourceBadge": "LINKEDIN",
-              "sourceUrl": "https://www.linkedin.com/company/snowflake-computing",
-              "coverageType": "live",
-              "coverageLabel": "Live",
-              "dateLabel": "1 min ago",
-              "evidenceScore": 100
-            }
-          ],
-          "coverageType": "live",
-          "coverageLabel": "Live",
-          "outline": "OUTLINE - Competitive landing page refresh\n\nAsset purpose\n- Buyer-facing landing page with clear comparison and proof\n- Current trigger: Snowflake LinkedIn\n- Evidence summary: Snowflake 1,346,345 followers 1d Report this post What happens when you layer 45 years of curated industry knowledge on top of your data? 🧠 Infosys and Info...\n\nAudience\n- Primary: sellers and PMMs working active competitive opportunities\n- Secondary: product leadership and solution architects who need source-backed talking points\n\nCore sections\n1. Competitor claim or market move\n2. Why buyers may believe it\n3. Focus product response: the differentiated IBM solution buyers should evaluate against current competitor claims\n4. Objection handlers and proof points\n5. CTA and source link for validation\n\nProduct relevance lens\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- Response focus: validated product proof, buyer-fit clarity, and competitor-specific objection handling\n\nPMM asset guidance used\n- HubSpot sales content checklist: Sales-facing product content should include comparison, proof, objection handling, demo, and enablement assets that help sellers close active deals.\n- Simon-Kucher product marketing strategy: PMM recommendations should stay tied to customer insight, positioning, pricing/value, sales enablement, and continuous market feedback.\n- Tribe Design Works marketing assets: Recommended assets should be practical market-facing or sales-facing deliverables, such as one-pagers, decks, case proof, landing pages, and campaign kits.\n\nSource citations\n- https://www.linkedin.com/company/snowflake-computing\n\nNext step\n- Draft the asset with exact source citations, then refresh after the crawler produces a newer live signal."
-        },
-        {
           "id": "live-pmm-campaign-kit-market-google-bigquery-web-bigquery-ai-data-platform-edw",
           "competitor": "Google BigQuery",
-          "publishedAt": "2026-07-11T19:28:36.605Z",
+          "publishedAt": "2026-07-11T19:39:32.376Z",
           "icon": "*",
           "title": "Campaign kit: Focus product vs BigQuery",
           "summary": "Turn the signal into a coordinated campaign kit with landing-page copy, seller snippet, and social angles. Trigger: Google BigQuery's website evidence is pressing on AI-led modernization.",
@@ -2921,9 +2859,71 @@
           "outline": "OUTLINE - Campaign kit\n\nAsset purpose\n- Integrated campaign assets across landing page, email, and social snippets\n- Current trigger: Google BigQuery Website\n- Evidence summary: BigQuery is the autonomous data and AI platform, automating the entire data life cycle so you can go from data to AI to action faster. Google is pulling the...\n\nAudience\n- Primary: sellers and PMMs working active competitive opportunities\n- Secondary: product leadership and solution architects who need source-backed talking points\n\nCore sections\n1. Competitor claim or market move\n2. Why buyers may believe it\n3. Focus product response: the differentiated IBM solution buyers should evaluate against current competitor claims\n4. Objection handlers and proof points\n5. CTA and source link for validation\n\nProduct relevance lens\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- Response focus: validated product proof, buyer-fit clarity, and competitor-specific objection handling\n\nPMM asset guidance used\n- HubSpot sales content checklist: Sales-facing product content should include comparison, proof, objection handling, demo, and enablement assets that help sellers close active deals.\n- Simon-Kucher product marketing strategy: PMM recommendations should stay tied to customer insight, positioning, pricing/value, sales enablement, and continuous market feedback.\n- Tribe Design Works marketing assets: Recommended assets should be practical market-facing or sales-facing deliverables, such as one-pagers, decks, case proof, landing pages, and campaign kits.\n\nSource citations\n- https://cloud.google.com/bigquery\n\nNext step\n- Draft the asset with exact source citations, then refresh after the crawler produces a newer live signal."
         },
         {
+          "id": "live-pmm-discovery-question-sheet-market-google-bigquery-linkedin-google-bigquery-social-narrative",
+          "competitor": "Google BigQuery",
+          "publishedAt": "2026-07-11T19:39:32.352Z",
+          "icon": "?",
+          "title": "Discovery question sheet: Focus product vs BigQuery",
+          "summary": "Give sellers sharper discovery questions that expose workload, governance, cost, migration, and AI-readiness tradeoffs. Trigger: Google BigQuery's linkedin evidence is pressing on AI-led modernization.",
+          "status": "Live",
+          "tags": [
+            "Discovery question sheet",
+            "Qualification questions for live opportunities and executive discovery",
+            "Counter-BigQuery",
+            "Live"
+          ],
+          "citations": [
+            {
+              "id": "market-google-bigquery-linkedin-google-bigquery-social-narrative",
+              "competitor": "Google BigQuery",
+              "sourceLabel": "LinkedIn",
+              "sourceBadge": "LINKEDIN",
+              "sourceUrl": "https://www.linkedin.com/showcase/google-cloud/",
+              "coverageType": "live",
+              "coverageLabel": "Live",
+              "dateLabel": "1 min ago",
+              "evidenceScore": 98
+            }
+          ],
+          "coverageType": "live",
+          "coverageLabel": "Live",
+          "outline": "OUTLINE - Discovery question sheet\n\nAsset purpose\n- Qualification questions for live opportunities and executive discovery\n- Current trigger: Google BigQuery LinkedIn\n- Evidence summary: Google Cloud 3,327,358 followers 3h Report this post Schrödinger migrated its computational modeling platform to Google Cloud to accelerate the discovery of...\n\nAudience\n- Primary: sellers and PMMs working active competitive opportunities\n- Secondary: product leadership and solution architects who need source-backed talking points\n\nCore sections\n1. Competitor claim or market move\n2. Why buyers may believe it\n3. Focus product response: the differentiated IBM solution buyers should evaluate against current competitor claims\n4. Objection handlers and proof points\n5. CTA and source link for validation\n\nProduct relevance lens\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- Response focus: validated product proof, buyer-fit clarity, and competitor-specific objection handling\n\nPMM asset guidance used\n- HubSpot sales content checklist: Sales-facing product content should include comparison, proof, objection handling, demo, and enablement assets that help sellers close active deals.\n- Simon-Kucher product marketing strategy: PMM recommendations should stay tied to customer insight, positioning, pricing/value, sales enablement, and continuous market feedback.\n- Tribe Design Works marketing assets: Recommended assets should be practical market-facing or sales-facing deliverables, such as one-pagers, decks, case proof, landing pages, and campaign kits.\n\nSource citations\n- https://www.linkedin.com/showcase/google-cloud/\n\nNext step\n- Draft the asset with exact source citations, then refresh after the crawler produces a newer live signal."
+        },
+        {
+          "id": "live-pmm-competitive-landing-page-market-snowflake-linkedin-snowflake-social-narrative",
+          "competitor": "Snowflake",
+          "publishedAt": "2026-07-11T19:39:32.114Z",
+          "icon": "[]",
+          "title": "Competitive landing page refresh: Focus product vs Snowflake",
+          "summary": "Refresh a competitive page that converts the source claim into buyer questions, proof blocks, and a specific CTA. Trigger: Snowflake's linkedin evidence is pressing on AI-led modernization.",
+          "status": "Live",
+          "tags": [
+            "Competitive landing page",
+            "Buyer-facing landing page with clear comparison and proof",
+            "Counter-Snowflake",
+            "Live"
+          ],
+          "citations": [
+            {
+              "id": "market-snowflake-linkedin-snowflake-social-narrative",
+              "competitor": "Snowflake",
+              "sourceLabel": "LinkedIn",
+              "sourceBadge": "LINKEDIN",
+              "sourceUrl": "https://www.linkedin.com/company/snowflake-computing",
+              "coverageType": "live",
+              "coverageLabel": "Live",
+              "dateLabel": "1 min ago",
+              "evidenceScore": 100
+            }
+          ],
+          "coverageType": "live",
+          "coverageLabel": "Live",
+          "outline": "OUTLINE - Competitive landing page refresh\n\nAsset purpose\n- Buyer-facing landing page with clear comparison and proof\n- Current trigger: Snowflake LinkedIn\n- Evidence summary: Snowflake 1,346,352 followers 1d Report this post What happens when you layer 45 years of curated industry knowledge on top of your data? 🧠 Infosys and Info...\n\nAudience\n- Primary: sellers and PMMs working active competitive opportunities\n- Secondary: product leadership and solution architects who need source-backed talking points\n\nCore sections\n1. Competitor claim or market move\n2. Why buyers may believe it\n3. Focus product response: the differentiated IBM solution buyers should evaluate against current competitor claims\n4. Objection handlers and proof points\n5. CTA and source link for validation\n\nProduct relevance lens\n- Buyer fit: Product, marketing, sales, and solution stakeholders\n- Response focus: validated product proof, buyer-fit clarity, and competitor-specific objection handling\n\nPMM asset guidance used\n- HubSpot sales content checklist: Sales-facing product content should include comparison, proof, objection handling, demo, and enablement assets that help sellers close active deals.\n- Simon-Kucher product marketing strategy: PMM recommendations should stay tied to customer insight, positioning, pricing/value, sales enablement, and continuous market feedback.\n- Tribe Design Works marketing assets: Recommended assets should be practical market-facing or sales-facing deliverables, such as one-pagers, decks, case proof, landing pages, and campaign kits.\n\nSource citations\n- https://www.linkedin.com/company/snowflake-computing\n\nNext step\n- Draft the asset with exact source citations, then refresh after the crawler produces a newer live signal."
+        },
+        {
           "id": "live-pmm-proof-brief-market-snowflake-web-migrate-to-the-ai-data-cloud-with-snowflake",
           "competitor": "Snowflake",
-          "publishedAt": "2026-07-11T19:28:36.510Z",
+          "publishedAt": "2026-07-11T19:39:31.348Z",
           "icon": "+",
           "title": "Proof brief: Focus product vs Snowflake",
           "summary": "Package source-backed proof points into a short credibility brief sellers can attach to follow-ups. Trigger: Snowflake's website evidence is pressing on AI-led modernization.",
@@ -2954,7 +2954,7 @@
         {
           "id": "live-pmm-competitive-battle-card-market-databricks-web-data-warehousing-on-databricks-databricks-on-aws",
           "competitor": "Databricks",
-          "publishedAt": "2026-07-11T19:28:36.334Z",
+          "publishedAt": "2026-07-11T19:39:31.311Z",
           "icon": "X",
           "title": "Seller battle card: Focus product vs Databricks",
           "summary": "Refresh the seller-ready battle card with current competitor proof, traps to avoid, and concise objection handlers. Trigger: Databricks' website evidence is pressing on AI-led modernization.",
@@ -3120,13 +3120,13 @@
       "recommendation": {
         "label": "Live positioning recommendation — IBM Knowledge enriched",
         "statement": "Focus product should be positioned around validated product proof, buyer-fit clarity, and source-backed differentiation against the current competitor set.",
-        "evidence": "Latest proof: Google BigQuery's linkedin signal is reinforcing AI-led modernization. That keeps Focus product's best response anchored in validated product proof, buyer-fit clarity, and competitor-specific objection handling. IBM confirms: \"Focus product plays a critical role in helping enterprises bring performance into modern lakehouse architectures. Built for...\" — IBM."
+        "evidence": "Latest proof: Amazon Redshift's linkedin signal is reinforcing migration acceleration. That keeps Focus product's best response anchored in validated product proof, buyer-fit clarity, and competitor-specific objection handling. IBM confirms: \"Focus product plays a critical role in helping enterprises bring performance into modern lakehouse architectures. Built for...\" — IBM."
       },
       "messagePillars": [
         {
           "tone": "pillar-content",
           "title": "Lakehouse performance engine",
-          "text": "Position Focus product as the warehouse-grade execution layer that makes open lakehouse data fast, governed, and ready for repeat analytics. Right now this matters because Google BigQuery is emphasizing AI-led modernization. IBM proof: Focus product plays a critical role in helping enterprises bring performance into modern lakehouse architectures. Built for workloads where spe... (IBM)"
+          "text": "Position Focus product as the warehouse-grade execution layer that makes open lakehouse data fast, governed, and ready for repeat analytics. Right now this matters because Amazon Redshift is emphasizing migration acceleration. IBM proof: Focus product plays a critical role in helping enterprises bring performance into modern lakehouse architectures. Built for workloads where spe... (IBM)"
         },
         {
           "tone": "pillar-events",
@@ -3136,7 +3136,7 @@
         {
           "tone": "pillar-market",
           "title": "Predictable economics",
-          "text": "Use cost stories, NCOS proof, and governance-friendly economics to show how performant warehouse execution controls lakehouse query spend. Right now this matters because Amazon Redshift is emphasizing migration acceleration. IBM proof: Focus product must lean on strengths: (1) Hybrid and multi-cloud deployment — competitors promote multi-cloud but not true hybrid-cloud. (2) Mu... (IBM)"
+          "text": "Use cost stories, NCOS proof, and governance-friendly economics to show how performant warehouse execution controls lakehouse query spend. Right now this matters because Google BigQuery is emphasizing AI-led modernization. IBM proof: Focus product must lean on strengths: (1) Hybrid and multi-cloud deployment — competitors promote multi-cloud but not true hybrid-cloud. (2) Mu... (IBM)"
         },
         {
           "tone": "pillar-product",
@@ -3151,28 +3151,28 @@
       ],
       "responseAngles": [
         {
-          "competitor": "Google BigQuery",
-          "publishedAt": "2026-07-11T19:28:37.462Z",
+          "competitor": "Amazon Redshift",
+          "publishedAt": "2026-07-11T19:39:32.613Z",
           "priority": "Primary angle",
-          "title": "Counter BigQuery on AI-led modernization",
-          "summary": "Google BigQuery's latest linkedin signal is pressing on AI-led modernization. That is exactly where Focus product should respond with lakehouse-ready performance, governed simplicity, and clearer workload-fit language.",
+          "title": "Counter Redshift on migration acceleration",
+          "summary": "Amazon Redshift's latest linkedin signal is pressing on migration acceleration. That is exactly where Focus product should respond with lakehouse-ready performance, governed simplicity, and clearer workload-fit language.",
           "recommendation": "Answer the social narrative with a short executive POV and a seller-ready one-pager before the theme settles into active deals.",
           "tags": [
-            "BigQuery",
+            "Redshift",
             "LINKEDIN",
             "1 min ago"
           ],
           "citations": [
             {
-              "id": "market-google-bigquery-linkedin-google-bigquery-social-narrative",
-              "competitor": "Google BigQuery",
+              "id": "market-amazon-redshift-linkedin-amazon-redshift-social-narrative",
+              "competitor": "Amazon Redshift",
               "sourceLabel": "LinkedIn",
               "sourceBadge": "LINKEDIN",
-              "sourceUrl": "https://www.linkedin.com/showcase/google-cloud/",
+              "sourceUrl": "https://www.linkedin.com/company/amazon-web-services",
               "coverageType": "live",
               "coverageLabel": "Live",
               "dateLabel": "1 min ago",
-              "evidenceScore": 98
+              "evidenceScore": 97
             }
           ],
           "coverageType": "live",
@@ -3180,7 +3180,7 @@
         },
         {
           "competitor": "Databricks",
-          "publishedAt": "2026-07-11T19:28:37.453Z",
+          "publishedAt": "2026-07-11T19:39:32.382Z",
           "priority": "Rebuttal",
           "title": "Counter Databricks on AI-led modernization",
           "summary": "Databricks' latest linkedin signal is pressing on AI-led modernization. That is exactly where Focus product should respond with lakehouse-ready performance, governed simplicity, and clearer workload-fit language.",
@@ -3207,28 +3207,28 @@
           "coverageLabel": "Live"
         },
         {
-          "competitor": "Amazon Redshift",
-          "publishedAt": "2026-07-11T19:28:36.992Z",
+          "competitor": "Google BigQuery",
+          "publishedAt": "2026-07-11T19:39:32.352Z",
           "priority": "Sales angle",
-          "title": "Counter Redshift on migration acceleration",
-          "summary": "Amazon Redshift's latest linkedin signal is pressing on migration acceleration. That is exactly where Focus product should respond with lakehouse-ready performance, governed simplicity, and clearer workload-fit language.",
+          "title": "Counter BigQuery on AI-led modernization",
+          "summary": "Google BigQuery's latest linkedin signal is pressing on AI-led modernization. That is exactly where Focus product should respond with lakehouse-ready performance, governed simplicity, and clearer workload-fit language.",
           "recommendation": "Answer the social narrative with a short executive POV and a seller-ready one-pager before the theme settles into active deals.",
           "tags": [
-            "Redshift",
+            "BigQuery",
             "LINKEDIN",
             "1 min ago"
           ],
           "citations": [
             {
-              "id": "market-amazon-redshift-linkedin-amazon-redshift-social-narrative",
-              "competitor": "Amazon Redshift",
+              "id": "market-google-bigquery-linkedin-google-bigquery-social-narrative",
+              "competitor": "Google BigQuery",
               "sourceLabel": "LinkedIn",
               "sourceBadge": "LINKEDIN",
-              "sourceUrl": "https://www.linkedin.com/company/amazon-web-services",
+              "sourceUrl": "https://www.linkedin.com/showcase/google-cloud/",
               "coverageType": "live",
               "coverageLabel": "Live",
               "dateLabel": "1 min ago",
-              "evidenceScore": 97
+              "evidenceScore": 98
             }
           ],
           "coverageType": "live",
@@ -3236,7 +3236,7 @@
         },
         {
           "competitor": "Snowflake",
-          "publishedAt": "2026-07-11T19:28:36.909Z",
+          "publishedAt": "2026-07-11T19:39:32.114Z",
           "priority": "Sales angle",
           "title": "Counter Snowflake on AI-led modernization",
           "summary": "Snowflake's latest linkedin signal is pressing on AI-led modernization. That is exactly where Focus product should respond with lakehouse-ready performance, governed simplicity, and clearer workload-fit language.",
@@ -3265,7 +3265,7 @@
         {
           "id": "propel-response-prop-comp-1",
           "competitor": "IBM Seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "title": "watsonx.data Competitive and Objection Handling — Snowflake",
           "summary": "Snowflake maintains 400+ partner ecosystem and Cortex AI/ML capabilities. Its cloud-native architecture and custom SQL engine optimize performance vs. legacy tech, BUT proprietary design risks vend...",
           "recommendation": "Open the IBM Seismic deck and use this content to build a counter-positioning asset: https://ibm.seismic.com/Link/Content/DCT3qFJGqhDX7GmX8g3489BQbgPV",
@@ -3280,7 +3280,7 @@
         {
           "id": "propel-response-prop-comp-2",
           "competitor": "IBM Seismic",
-          "publishedAt": "2026-07-11T19:28:35.761Z",
+          "publishedAt": "2026-07-11T19:39:31.047Z",
           "title": "Snowflake Q1 2026: Cost Insights & Tag Support",
           "summary": "Snowflake launched granular warehouse-level and cloud services cost visibility (GA March 2026) with automatic cost allocation via tags — integrated with Cloudability. IBM counter: Netezza's cost-pr...",
           "recommendation": "Open the IBM Seismic deck and use this content to build a counter-positioning asset: https://ibm.seismic.com/Link/Content/DCPMB4FVcRMWh8QR7f3PWhpgc4FP",
