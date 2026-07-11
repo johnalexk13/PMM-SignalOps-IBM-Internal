@@ -1717,6 +1717,16 @@ function hoursSince(value) {
   return (Date.now() - new Date(value).getTime()) / 36e5;
 }
 
+function formatRelativeTime(value) {
+  const hours = hoursSince(value);
+  if (!Number.isFinite(hours) || hours < 0) return "Unknown";
+  if (hours < 1)        return `${Math.max(1, Math.round(hours * 60))} min ago`;
+  if (hours < 24)       return `${Math.round(hours)} hr ago`;
+  if (hours < 24 * 7)  return `${Math.round(hours / 24)} days ago`;
+  if (hours < 24 * 30) return `${Math.round(hours / (24 * 7))} weeks ago`;
+  return `${Math.round(hours / (24 * 30))} months ago`;
+}
+
 function capitalize(value) {
   return value ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : value;
 }
