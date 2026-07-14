@@ -5180,13 +5180,24 @@ function buildProductCapabilityMatrixForCompetitors(competitors, capabilityEvide
     let weakCount = 0;
 
     competitors.forEach((competitor) => {
-      // Static truth for this competitor
+      // Static truth for this competitor (only exists for the default
+      // data-warehouse competitor set)
       const staticColumn = resolveCapabilityMatrixColumn(competitor.name);
-      const staticStatus = (staticColumn && row.statuses[staticColumn]) ? row.statuses[staticColumn] : "partial";
-
-      // Live upgrade: only promote to "strong" if the crawler confirmed "claimed"
       const liveCell = live?.byComp?.[competitor.name];
-      const status = (liveCell?.status === "claimed") ? "strong" : staticStatus;
+
+      let status;
+      if (staticColumn && row.statuses[staticColumn]) {
+        // Known competitor: live evidence can only upgrade the static status
+        // to "strong" — it never downgrades a researched status.
+        status = (liveCell?.status === "claimed") ? "strong" : row.statuses[staticColumn];
+      } else {
+        // Custom competitor with no static column: trust the live scan fully so
+        // cells reflect what the crawler actually found on their public pages.
+        status = liveCell?.status === "claimed" ? "strong"
+          : liveCell?.status === "reported" ? "partial"
+          : liveCell?.status === "not-detected" ? "gap"
+          : "partial";
+      }
 
       statuses[competitor.name] = status;
       if (status !== "strong") weakCount += 1;
@@ -7962,14 +7973,21 @@ function shortCompetitorLabel(name) {
 }
 
 function buildOverviewRadarSeries(axes, positioningDimensions = getProductPositioningDimensions()) {
+  const RADAR_PALETTE = ["#e74c3c", "#3498db", "#f39c12", "#27ae60", "#9b59b6", "#e67e22"];
+  const DEFAULT_RADAR_COMPETITORS = [
+    "Databricks", "Snowflake", "Amazon Redshift", "Google BigQuery", "Azure Synapse", "Teradata",
+  ];
+
+  // Radar series is driven by the competitors configured in Manage. The static
+  // data-warehouse set is only used when no competitors are configured yet.
+  const configured = getConfiguredCompetitors();
+  const competitorNames = configured.length
+    ? configured.slice(0, 6).map((competitor) => competitor.name)
+    : DEFAULT_RADAR_COMPETITORS;
+
   const competitorMap = [
     { name: getFocusProductDisplayName(), color: "#0f62fe", key: "netezza", isFocusProduct: true },
-    { name: "Databricks", color: "#e74c3c", key: "Databricks" },
-    { name: "Snowflake", color: "#3498db", key: "Snowflake" },
-    { name: "Amazon Redshift", color: "#f39c12", key: "Amazon Redshift" },
-    { name: "Google BigQuery", color: "#27ae60", key: "Google BigQuery" },
-    { name: "Azure Synapse", color: "#9b59b6", key: "Azure Synapse" },
-    { name: "Teradata", color: "#e67e22", key: "Teradata" },
+    ...competitorNames.map((name, index) => ({ name, color: RADAR_PALETTE[index % RADAR_PALETTE.length], key: name })),
   ];
 
   return competitorMap.map((item) => ({
@@ -7979,9 +7997,40 @@ function buildOverviewRadarSeries(axes, positioningDimensions = getProductPositi
     values: axes.map((axis) => {
       const dimension = positioningDimensions.find((entry) => entry.label === axis.key);
       if (!dimension) return 0;
-      return item.key === "netezza" ? dimension.netezza : dimension.competitors[item.key];
+      if (item.key === "netezza") return dimension.netezza;
+      // Static editorial score when this competitor exists in the blueprint,
+      // otherwise derive a score from live capability evidence.
+      const staticScore = dimension.competitors?.[item.key];
+      if (Number.isFinite(staticScore)) return staticScore;
+      return deriveCompetitorRadarScore(item.key, axis.key);
     }),
   }));
+}
+
+// Derives a 2–9.5 radar score for competitors that have no static blueprint
+// entry. Base score comes from the live capability-evidence scan (share of
+// publicly claimed capabilities); a deterministic per-axis offset keeps the
+// polygons readable without changing between renders.
+function deriveCompetitorRadarScore(competitorName, axisKey) {
+  let base = 5.5;
+  const evidence = state.liveInsights?.capabilityEvidence;
+  if (evidence?.competitors) {
+    const canonical = canonicalCompetitorName(competitorName);
+    const evidenceKey = Object.keys(evidence.competitors).find(
+      (key) => canonicalCompetitorName(key) === canonical
+    );
+    const cells = evidenceKey ? Object.values(evidence.competitors[evidenceKey] || {}) : [];
+    if (cells.length) {
+      const claimed = cells.filter((cell) => cell?.status === "claimed").length;
+      const reported = cells.filter((cell) => cell?.status === "reported").length;
+      base = 3.5 + 5 * ((claimed + 0.5 * reported) / cells.length);
+    }
+  }
+  let hash = 0;
+  const seed = `${competitorName}|${axisKey}`;
+  for (let i = 0; i < seed.length; i += 1) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  const offset = ((hash % 17) / 17 - 0.5) * 1.6;
+  return Math.max(2, Math.min(9.5, base + offset));
 }
 
 function getRadarSeriesPoints(values, axes, center, radius) {
