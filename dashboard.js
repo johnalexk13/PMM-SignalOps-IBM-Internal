@@ -1,5 +1,5 @@
 import { buildPmmDraft, buildContentDraft } from "./lib/asset-drafts.mjs";
-import { appendHistory, snapshotFilename, snapshotMarkdown, fetchJson, validateWorkspacePayload } from "./lib/workspace-tools.mjs";
+import { appendHistory, fetchJson, validateWorkspacePayload } from "./lib/workspace-tools.mjs";
 const LEGACY_STORAGE_KEY = "ibm-netezza-product-marketing-insights-v1";
 const STORAGE_KEY_PREFIX = "signalops-internal-product-marketing-insights-v1";
 const AUTH_USERS_KEY = "signalops-internal-auth-users-v1";
@@ -44,6 +44,7 @@ const MAX_DOCUMENT_SOURCE_SIZE_BYTES = 2 * 1024 * 1024;
 const STATIC_WORKSPACE_INTELLIGENCE_ENDPOINT = "./data/workspace-intelligence.json";
 const PMM_PAGE_IDS = ["overview", "content", "events", "market", "product", "positioning", "manage"];
 const COMMUNITY_PAGE_IDS = ["community-announcements", "community-thought-leadership", "community-replies", "community-manage"];
+const PDF_OUTPUT_PAGE_IDS = new Set(["content", "events", "market", "product", "positioning"]);
 
 const SECTION_CONFIG = {
   pmm: {
@@ -8577,33 +8578,14 @@ function renderPageTools() {
     toolbar.className = "page-tools";
     document.querySelector("main.content").prepend(toolbar);
   }
-  toolbar.hidden = !hasActiveProductWorkspace() || !authContext.currentUser;
-  const count = (getActiveProductWorkspace()?.history || []).filter(item => item.pageId === state.activePage).length;
-  toolbar.innerHTML = `<span><strong>${escapeHtml(getPageTitle(state.activePage))}</strong> · ${escapeHtml(getFocusProductDisplayName())}</span>
-    <div class="page-tools-actions"><button class="secondary-button" data-save-insight>Save snapshot</button><button class="secondary-button" data-view-history>History (${count})</button><button class="secondary-button" data-download-page="md">Download Markdown</button><button class="secondary-button" data-download-page="json">Download JSON</button></div>
-    <span id="pageToolStatus" role="status" aria-live="polite"></span>`;
-}
-
-function pageToText(pageId) {
-  if (pageId === "manage" || pageId === "community-manage") {
-    const product = getActiveProductWorkspace();
-    return pageId === "community-manage"
-      ? `Community keywords\n${getPersistableCommunityKeywords().join("\n")}\n\nPlatforms\n${getPersistableCommunityPlatforms().join("\n")}`
-      : `Product: ${product.displayName}\nURL: ${product.productUrl}\nBuyer: ${product.primaryBuyer}\nDescription: ${product.description}\n\nCompetitors\n${getConfiguredCompetitors().map(item => `${item.name}: ${item.url}`).join("\n")}\n\nReference documents (metadata only)\n${state.documentSources.map(doc => doc.name).join("\n")}`;
+  const canDownload = PDF_OUTPUT_PAGE_IDS.has(state.activePage) && hasActiveProductWorkspace() && authContext.currentUser;
+  toolbar.hidden = !canDownload;
+  if (!canDownload) {
+    toolbar.replaceChildren();
+    return;
   }
-  const section = refs.sections[pageId].cloneNode(true);
-  section.querySelectorAll("button, input, select, textarea, script, style, svg, .content-outline-panel, .pmm-outline-panel").forEach(node => node.remove());
-  section.querySelectorAll("a[href]").forEach(node => { node.textContent = `${node.textContent.trim()} (${node.getAttribute("href")})`; });
-  section.querySelectorAll("h1,h2,h3,h4,p,li,article,pre,div,span,td,tr").forEach(node => { node.append(document.createTextNode("\n")); });
-  let text = section.textContent.replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim();
-  const drafts = pageId === "content" ? getContentIdeas() : pageId === "events" ? buildDynamicPmmActions() : [];
-  if (drafts.length) text += "\n\nFULL DRAFTS\n\n" + drafts.map(item => `${item.title}\n\n${item.outline}`).join("\n\n--------------------\n\n");
-  return text;
-}
-
-function createPageSnapshot(pageId) {
-  const createdAt = new Date().toISOString();
-  return { id: `${pageId}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, version: 1, productId: state.activeProductId, productName: getFocusProductDisplayName(), pageId, pageTitle: getPageTitle(pageId), createdAt, text: pageToText(pageId) };
+  toolbar.innerHTML = `<span><strong>${escapeHtml(getPageTitle(state.activePage))}</strong> · ${escapeHtml(getFocusProductDisplayName())}</span>
+    <button class="secondary-button" type="button" data-download-output aria-label="Download output as PDF">Download output</button>`;
 }
 
 function archivePages(pageIds) {
@@ -8611,59 +8593,38 @@ function archivePages(pageIds) {
   const workspace = getActiveProductWorkspace();
   for (const pageId of pageIds) workspace.history = appendHistory(workspace.history, createPageSnapshot(pageId));
   persistShellState();
-  renderPageTools();
 }
 
-function downloadSnapshot(entry, format) {
-  const blob = new Blob([format === "json" ? JSON.stringify(entry, null, 2) : snapshotMarkdown(entry)], { type: format === "json" ? "application/json" : "text/markdown;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = snapshotFilename(entry, format);
-  document.body.append(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-function showHistory(selectedId = "") {
-  let dialog = document.querySelector("#historyDialog");
-  if (!dialog) {
-    dialog = document.createElement("dialog");
-    dialog.id = "historyDialog";
-    dialog.className = "history-dialog";
-    dialog.setAttribute("aria-labelledby", "historyTitle");
-    document.body.append(dialog);
-  }
-  const entries = (getActiveProductWorkspace()?.history || []).filter(item => item.pageId === state.activePage);
-  const selected = entries.find(item => item.id === selectedId) || entries[0];
-  dialog.innerHTML = `<div class="history-heading"><h2 id="historyTitle">${escapeHtml(getPageTitle(state.activePage))} history</h2><button class="secondary-button" data-close-history>Close history</button></div>
-    <p>${escapeHtml(getFocusProductDisplayName())} · Saved in this browser and profile. Up to 10 versions per page, subject to available storage. Downloads include full drafts and source links. Viewing history does not replace current insights.</p>
-    <div class="history-layout"><nav aria-label="Saved versions">${entries.length ? entries.map(item => `<button class="secondary-button ${selected?.id === item.id ? "selected" : ""}" data-history-entry="${escapeAttribute(item.id)}">${escapeHtml(formatDateTimePrecise(new Date(item.createdAt)))}</button>`).join("") : "No saved versions yet. Use Save snapshot or refresh the insights."}</nav>
-    <article>${selected ? `<div class="page-tools-actions"><button class="secondary-button" data-download-history="${escapeAttribute(selected.id)}" data-format="md">Download saved Markdown</button><button class="secondary-button" data-download-history="${escapeAttribute(selected.id)}" data-format="json">Download saved JSON</button></div><pre>${escapeHtml(selected.text)}</pre>` : ""}</article></div>`;
-  if (!dialog.open) dialog.showModal();
+function createPageSnapshot(pageId) {
+  const section = refs.sections[pageId].cloneNode(true);
+  section.querySelectorAll("button, input, select, textarea, script, style, svg, .content-outline-panel, .pmm-outline-panel").forEach(node => node.remove());
+  section.querySelectorAll("a[href]").forEach(node => { node.textContent = `${node.textContent.trim()} (${node.getAttribute("href")})`; });
+  section.querySelectorAll("h1,h2,h3,h4,p,li,article,pre,div,span,td,tr").forEach(node => { node.append(document.createTextNode("\n")); });
+  let text = section.textContent.replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  const drafts = pageId === "content" ? getContentIdeas() : pageId === "events" ? buildDynamicPmmActions() : [];
+  if (drafts.length) text += "\n\nFULL DRAFTS\n\n" + drafts.map(item => `${item.title}\n\n${item.outline}`).join("\n\n--------------------\n\n");
+  return { id: `${pageId}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, version: 1, productId: state.activeProductId, productName: getFocusProductDisplayName(), pageId, pageTitle: getPageTitle(pageId), createdAt: new Date().toISOString(), text };
 }
 
 function handlePageToolClick(event) {
-  if (event.target.closest("[data-save-insight]")) {
-    archivePages([state.activePage]);
-    const saved = safeParse(getStorage())?.productWorkspaces?.[state.activeProductId]?.history || [];
-    document.querySelector("#pageToolStatus").textContent = saved.some(item => item.pageId === state.activePage && item.text === pageToText(state.activePage)) ? "Snapshot saved in this browser." : "Storage is full. Download this page to keep a copy.";
-    return true;
-  }
-  if (event.target.closest("[data-view-history]")) { showHistory(); return true; }
-  if (event.target.closest("[data-close-history]")) { document.querySelector("#historyDialog").close(); return true; }
-  const entry = event.target.closest("[data-history-entry]");
-  if (entry) { showHistory(entry.dataset.historyEntry); return true; }
-  const download = event.target.closest("[data-download-page]");
-  if (download) { downloadSnapshot(createPageSnapshot(state.activePage), download.dataset.downloadPage); return true; }
-  const savedDownload = event.target.closest("[data-download-history]");
-  if (savedDownload) {
-    const saved = getActiveProductWorkspace().history.find(item => item.id === savedDownload.dataset.downloadHistory);
-    if (saved) downloadSnapshot(saved, savedDownload.dataset.format);
-    return true;
-  }
-  return false;
+  if (!event.target.closest("[data-download-output]")) return false;
+  if (!PDF_OUTPUT_PAGE_IDS.has(state.activePage) || !hasActiveProductWorkspace()) return true;
+
+  const page = refs.sections[state.activePage];
+  const originalTitle = document.title;
+  const restorePage = () => {
+    window.removeEventListener("afterprint", restorePage);
+    document.body.classList.remove("printing-output");
+    page.removeAttribute("data-pdf-output");
+    document.title = originalTitle;
+  };
+
+  page.setAttribute("data-pdf-output", "true");
+  document.body.classList.add("printing-output");
+  document.title = `${getPageTitle(state.activePage)} - ${getFocusProductDisplayName()} - SignalOps`;
+  window.addEventListener("afterprint", restorePage, { once: true });
+  window.print();
+  return true;
 }
 
 function coalesceRefresh(kind, options, perform) {
