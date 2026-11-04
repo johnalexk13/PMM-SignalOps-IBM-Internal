@@ -72,6 +72,22 @@ test('refresh timeout aborts instead of leaving loading state indefinitely', asy
   await assert.rejects(fetchJson('/api', {}, { timeoutMs: 5, retries: 0, fetchImpl: (_, { signal }) => new Promise((resolve, reject) => signal.addEventListener('abort', () => reject(new Error('aborted')))) }), /aborted/);
 });
 
+test('saved uploaded documents can be decoded at dashboard startup before the first refresh', async () => {
+  const text = 'Approved product documentation describes governed analytics with predictable performance and deployment options for enterprise teams evaluating workload fit and migration requirements.';
+  const documentSource = { name: 'approved.txt', type: 'text/plain', dataUrl: `data:text/plain;base64,${Buffer.from(text).toString('base64')}` };
+  const storage = { getItem: () => null };
+  const ctx = vm.createContext({ console, URLSearchParams, atob, TextDecoder,
+    window: { location: { search: '', protocol: 'http:' }, localStorage: storage }, localStorage: storage,
+    document: { querySelector: () => null, querySelectorAll: () => [] } });
+  // Exercise document preparation at the actual module startup call site.
+  const code = (await readFile(new URL('../dashboard.js', import.meta.url), 'utf8'))
+    .replace(/^import .*;\n/gm, '')
+    .replace('\nboot();', `\nstate.documentSources = [${JSON.stringify(documentSource)}]; var startupDocuments = buildAnalyzableDocuments();`);
+  vm.runInContext(code, ctx);
+  assert.equal(ctx.startupDocuments[0].text, text);
+  assert.equal(ctx.startupDocuments[0].name, 'approved.txt');
+});
+
 async function dashboardContext() {
   const values = new Map();
   const storage = { getItem: key => values.get(key) || null, setItem: (key, value) => values.set(key, value), removeItem: key => values.delete(key) };
