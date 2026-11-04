@@ -1135,6 +1135,7 @@ body.auth-locked { overflow: hidden; }
 }
 .content-idea-list {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   margin-top: 18px;
 }
 .content-idea-item {
@@ -1153,12 +1154,14 @@ body.auth-locked { overflow: hidden; }
 }
 .content-idea-main {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 14px;
   align-items: flex-start;
 }
 .content-idea-copy {
   display: grid;
+  min-width: 0;
+  overflow-wrap: anywhere;
   gap: 10px;
 }
 .content-idea-title-row {
@@ -1235,6 +1238,7 @@ body.auth-locked { overflow: hidden; }
   color: var(--ink-40);
   line-height: 1.6;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   background: rgba(255,255,255,0.96);
   font-family: "IBM Plex Mono", Consolas, "Courier New", monospace;
   font-size: 0.84rem;
@@ -1281,6 +1285,7 @@ body.auth-locked { overflow: hidden; }
 }
 .pmm-action-list {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   margin-top: 14px;
 }
 .pmm-action-item {
@@ -1299,12 +1304,14 @@ body.auth-locked { overflow: hidden; }
 }
 .pmm-action-main {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 14px;
   align-items: flex-start;
 }
 .pmm-action-copy {
   display: grid;
+  min-width: 0;
+  overflow-wrap: anywhere;
   gap: 8px;
 }
 .pmm-action-title-row {
@@ -1391,6 +1398,7 @@ body.auth-locked { overflow: hidden; }
   color: var(--ink-40);
   line-height: 1.6;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   background: rgba(255,255,255,0.96);
   font-family: "IBM Plex Mono", Consolas, "Courier New", monospace;
   font-size: 0.84rem;
