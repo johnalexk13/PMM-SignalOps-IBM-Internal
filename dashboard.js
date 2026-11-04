@@ -2572,7 +2572,6 @@ let communityRequestSequence = 0;
 let eventsAttached = false;
 const pendingRefreshes = new Map();
 
-boot();
 function boot() {
   ensureSeededAuthUsers();
   authContext = getAuthContext();
@@ -8689,3 +8688,7 @@ function mergeCommunitySnapshot(payload, saved = []) {
   }
   return items;
 }
+
+// Saved uploads may need decoding during the first refresh. Initialize all
+// document extraction constants before starting the signed-in workspace.
+boot();
