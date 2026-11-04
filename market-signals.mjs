@@ -87,7 +87,8 @@ export async function getMarketSignalsFeed({ force = false, competitors = DEFAUL
 
   console.log(`[market-signals] Fetching signals for competitors: ${competitorNames.join(', ')}`);
 
-  const persistedSnapshot = force ? null : await readPersistedSnapshot();
+  const disk = await readPersistedSnapshot();
+  const persistedSnapshot = cache.key === cacheKey ? cache.payload : disk?.meta?.cacheKey === cacheKey ? disk : null;
 
   // Build dynamic sources based on competitors
   const dynamicSources = competitors.length > 0
@@ -109,7 +110,7 @@ export async function getMarketSignalsFeed({ force = false, competitors = DEFAUL
   const filteredFallbackItems = filterSignalsByCompetitors(FALLBACK_MARKET_SIGNALS, competitors);
   
   const annotatedLiveItems = liveItems.map((item) => annotateCoverage(item, "live"));
-  const annotatedPersistedItems = filteredPersistedItems.map((item) => annotateCoverage(item, "static"));
+  const annotatedPersistedItems = filteredPersistedItems.filter(item => ["live", "cached"].includes(item.coverageType)).map(item => ({ ...item, coverageType: "cached", coverageLabel: "Saved result", isNew: false }));
   const annotatedFallbackItems = filteredFallbackItems.map((item) => annotateCoverage(item, "static"));
   const items = dedupeById([...annotatedLiveItems, ...annotatedPersistedItems, ...annotatedFallbackItems])
     .sort((left, right) => new Date(right.publishedAt) - new Date(left.publishedAt))
@@ -133,6 +134,7 @@ export async function getMarketSignalsFeed({ force = false, competitors = DEFAUL
       totalSources: dynamicSources.length,
       failedSources,
       persistedSnapshotAt: persistedSnapshot?.meta?.lastUpdated || null,
+      cacheKey,
       competitors: competitorNames,
       competitorCount: competitors.length,
     },

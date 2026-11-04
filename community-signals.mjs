@@ -186,75 +186,34 @@ export async function getCommunitySignalsFeed({ force = false, productName = "IB
   const normalizedPlatforms = normalizeList(platforms);
   const cacheKey = JSON.stringify({ productName, normalizedKeywords, normalizedPlatforms });
   const now = Date.now();
-
-  if (!force && cache.payload && cache.key === cacheKey && cache.expiresAt > now) {
-    return cache.payload;
-  }
-
-  const persistedSnapshot = force ? null : await readPersistedSnapshot();
+  if (!force && cache.payload && cache.key === cacheKey && cache.expiresAt > now) return cache.payload;
+  const disk = await readPersistedSnapshot();
+  const previous = cache.key === cacheKey ? cache.payload : disk?.meta?.cacheKey === cacheKey ? disk : null;
   const sources = buildCommunitySources({ platforms: normalizedPlatforms, keywords: normalizedKeywords, productName });
-  const settled = await Promise.allSettled(sources.map((source) => fetchCommunitySource(source, { productName, keywords: normalizedKeywords })));
-  const fetchedItems = settled
-    .filter((result) => result.status === "fulfilled")
-    .flatMap((result) => result.value);
-  const crawledItems = fetchedItems.filter((item) => !item.isSurface);
-  const surfaceItems = fetchedItems.filter((item) => item.isSurface);
-
-  // Crawler stats count only real crawl sources, not sign-in surfaces or named-community links
-  const crawlSources = sources.filter((source) => source.kind !== "surface");
-  const crawlResults = settled.filter((result, index) => sources[index].kind !== "surface");
-  const activeSources = crawlResults.filter((result) => result.status === "fulfilled" && result.value.length).length;
-  const persistedItems = Array.isArray(persistedSnapshot?.items) ? persistedSnapshot.items : [];
-  const failedSources = crawlSources.length - activeSources;
-  const annotatedLiveItems = crawledItems.map((item) => annotateCommunityCoverage(item, "live"));
-  const annotatedSurfaceItems = surfaceItems.map((item) => annotateCommunityCoverage(item, "static"));
-  const annotatedPersistedItems = persistedItems
-    .filter((item) => !item.isSurface)
-    .map((item) => annotateCommunityCoverage(item, item.coverageType || "static"));
-  // Fallback guidance only appears when nothing live or persisted is available
-  const annotatedFallbackItems = annotatedLiveItems.length || annotatedPersistedItems.length
-    ? []
-    : buildFallbackCommunitySignals({ productName, keywords: normalizedKeywords }).map((item) => annotateCommunityCoverage(item, "static"));
-  const sourceItems = annotatedLiveItems.length
-    ? [...annotatedLiveItems, ...annotatedSurfaceItems]
-    : [...annotatedPersistedItems, ...annotatedSurfaceItems, ...annotatedFallbackItems];
-  const items = dedupeById(sourceItems)
-    .sort((left, right) => new Date(right.publishedAt) - new Date(left.publishedAt))
-    .slice(0, 36)
-    .map((item) => ({
-      ...item,
-      isNew: hoursSince(item.publishedAt) <= 72,
-      freshnessLabel: formatRelativeTime(item.publishedAt),
-      dateLabel: formatDate(item.publishedAt),
-    }));
-
-  const payload = {
-    meta: {
-      status: activeSources
-        ? `Controlled crawler ${activeSources}/${crawlSources.length}`
-        : persistedItems.length
-          ? "Cached community snapshot + fallback"
-          : "Community fallback snapshot",
-      lastUpdated: new Date().toISOString(),
-      activeSources,
-      totalSources: crawlSources.length,
-      failedSources,
-      persistedSnapshotAt: persistedSnapshot?.meta?.lastUpdated || null,
-      productName,
-    },
-    items,
-  };
-
-  if (activeSources || !persistedItems.length) {
-    await persistSnapshot(payload);
-  }
-
-  cache = {
-    key: cacheKey,
-    expiresAt: now + CACHE_TTL_MS,
-    payload,
-  };
-
+  const settled = await Promise.allSettled(sources.map(source => fetchCommunitySource(source, { productName, keywords: normalizedKeywords })));
+  const sourceCoverage = [];
+  const combined = [];
+  settled.forEach((result, index) => {
+    const source = sources[index];
+    const manual = source.kind === "surface";
+    const failed = result.status === "rejected";
+    const fresh = failed ? [] : result.value;
+    const saved = failed ? (previous?.items || []).filter(item => item.sourceId === source.id && !item.isSurface).map(item => ({ ...item, coverageType: "cached", coverageLabel: "Saved result", isNew: false })) : [];
+    combined.push(...fresh, ...saved);
+    sourceCoverage.push({ id: source.id, label: source.group, status: manual ? "manual" : failed ? (saved.length ? "cached" : "failed") : fresh.length ? "live" : "empty", count: fresh.length || saved.length, reason: failed ? String(result.reason?.message || "Source unavailable").slice(0, 160) : manual ? "Open and review this source manually" : fresh.length ? "" : "No matching discussions returned" });
+  });
+  const activeSources = sourceCoverage.filter(item => item.status === "live").length;
+  const failedSources = sourceCoverage.filter(item => ["failed", "cached"].includes(item.status)).length;
+  const emptySources = sourceCoverage.filter(item => item.status === "empty").length;
+  const manualSources = sourceCoverage.filter(item => item.status === "manual").length;
+  const items = dedupeById(combined).sort((a, b) => (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0)).slice(0, 100).map(item => ({
+    ...item, isNew: item.coverageType === "live" && hoursSince(item.publishedAt) >= 0 && hoursSince(item.publishedAt) <= 72,
+    freshnessLabel: item.isSurface ? "Manual search" : item.publishedAt ? formatRelativeTime(item.publishedAt) : "Date unavailable",
+    dateLabel: item.publishedAt ? formatDate(item.publishedAt) : "",
+  }));
+  const payload = { meta: { status: failedSources ? "Partial community coverage" : "Community search completed", lastUpdated: new Date().toISOString(), activeSources, totalSources: sources.length - manualSources, failedSources, emptySources, manualSources, sourceCoverage, productName, cacheKey }, items };
+  await persistSnapshot(payload);
+  cache = { key: cacheKey, expiresAt: now + CACHE_TTL_MS, payload };
   return payload;
 }
 
@@ -278,21 +237,14 @@ function buildCommunitySources({ platforms, keywords = [], productName = "" }) {
       play: "replies",
       sourceLabel: "Reddit",
       sourceBadge: "REDDIT",
-      sourceUrl: `https://www.reddit.com/search.json?q=${encodeURIComponent(orQuery)}&sort=new&limit=8`,
+      sourceUrl: `https://www.reddit.com/search.json?q=${encodeURIComponent(orQuery)}&sort=new&limit=20`,
       trustQueryMatch: true,
     },
-    {
-      id: "hn-keywords",
-      kind: "hn",
-      platform: "Hacker News",
-      community: "Hacker News",
-      group: "Hacker News threads matching workspace keywords",
-      play: "thought-leadership",
-      sourceLabel: "Hacker News",
-      sourceBadge: "HN",
-      sourceUrl: `https://hn.algolia.com/api/v1/search_by_date?query=${encodeURIComponent(plainQuery)}&optionalWords=${encodeURIComponent(plainQuery)}&tags=story&hitsPerPage=8`,
-      trustQueryMatch: true,
-    },
+    ...topTerms.map((term, index) => ({
+      id: `hn-keyword-${index + 1}`, kind: "hn", platform: "Hacker News", community: "Hacker News",
+      group: `Hacker News discussions about ${term}`, play: "thought-leadership", sourceLabel: "Hacker News", sourceBadge: "HN",
+      sourceUrl: `https://hn.algolia.com/api/v1/search_by_date?query=${encodeURIComponent(term)}&tags=story&hitsPerPage=20`,
+    })),
     ...topTerms.map((term, index) => ({
       id: `stackoverflow-keyword-${index + 1}`,
       kind: "stackexchange",
@@ -302,21 +254,14 @@ function buildCommunitySources({ platforms, keywords = [], productName = "" }) {
       play: "replies",
       sourceLabel: "Stack Overflow",
       sourceBadge: "STACK",
-      sourceUrl: `https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=activity&q=${encodeURIComponent(term)}&site=stackoverflow&pagesize=5`,
+      sourceUrl: `https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=activity&q=${encodeURIComponent(term)}&site=stackoverflow&pagesize=15`,
       trustQueryMatch: true,
     })),
-    {
-      id: "github-keywords",
-      kind: "github",
-      platform: "GitHub",
-      community: "GitHub",
-      group: "Open issues and discussions matching workspace keywords",
-      play: "replies",
-      sourceLabel: "GitHub",
-      sourceBadge: "GITHUB",
-      sourceUrl: `https://api.github.com/search/issues?q=${encodeURIComponent(topTerms.map((term) => (term.includes(" ") ? `"${term}"` : term)).join(" OR "))}&sort=updated&order=desc&per_page=6`,
-      trustQueryMatch: true,
-    },
+    ...topTerms.map((term, index) => ({
+      id: `github-keyword-${index + 1}`, kind: "github", platform: "GitHub", community: "GitHub",
+      group: `GitHub issues about ${term}`, play: "replies", sourceLabel: "GitHub", sourceBadge: "GITHUB",
+      sourceUrl: `https://api.github.com/search/issues?q=${encodeURIComponent('"' + term + '" in:title,body is:issue is:open')}&sort=updated&order=desc&per_page=20`,
+    })),
   ];
 
   const surfaceSources = [
@@ -346,26 +291,18 @@ function buildCommunitySources({ platforms, keywords = [], productName = "" }) {
     },
   ];
 
-  // Platforms the user configured as URLs become live crawl sources of their own
-  const customSources = platforms
-    .filter((platform) => /^https?:\/\//i.test(platform))
-    .slice(0, 6)
-    .map((platformUrl, index) => {
-      let host = "Configured community";
-      try { host = new URL(platformUrl).hostname.replace(/^www\./, ""); } catch {}
-      return {
-        id: `custom-community-${index + 1}`,
-        kind: "html",
-        platform: host,
-        community: host,
-        group: `Configured community: ${host}`,
-        play: "replies",
-        sourceLabel: host,
-        sourceBadge: "COMMUNITY",
-        sourceUrl: platformUrl,
-        alwaysInclude: true,
-      };
-    });
+  const configuredUrls = platforms.filter(platform => /^https?:\/\//i.test(platform));
+  if (configuredUrls.some(url => /dba\.stackexchange\.com/i.test(url))) {
+    dynamicSources.push(...topTerms.map((term, index) => ({
+      id: `dba-keyword-${index + 1}`, kind: "stackexchange", platform: "DBA Stack Exchange", community: "DBA Stack Exchange",
+      group: `DBA questions about ${term}`, play: "replies", sourceLabel: "DBA Stack Exchange", sourceBadge: "STACK",
+      sourceUrl: `https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=activity&q=${encodeURIComponent(term)}&site=dba&pagesize=15`, alwaysInclude: true,
+    })));
+  }
+  const customSources = configuredUrls.filter(url => !/^(https?:\/\/)?(www\.)?(stackoverflow\.com|dba\.stackexchange\.com|github\.com|reddit\.com|news\.ycombinator\.com)(\/|$)/i.test(url)).slice(0, 6).map((platformUrl, index) => {
+    const host = new URL(platformUrl).hostname.replace(/^www\./, "");
+    return { id: `custom-community-${index + 1}`, kind: "surface", platform: host, community: host, group: `Configured community: ${host}`, play: "replies", sourceLabel: host, sourceBadge: "COMMUNITY", sourceUrl: platformUrl, surfaceSummary: "Configured page for manual review. No discussion or publication date has been verified.", alwaysInclude: true };
+  });
 
   const namedPlatforms = platforms.filter((platform) => !/^https?:\/\//i.test(platform));
   const selected = namedPlatforms.map((platform) => platform.toLowerCase());
@@ -415,6 +352,12 @@ async function fetchCommunitySource(source, context) {
   if (source.kind === "surface") {
     return [{
       id: `${source.id}-surface`,
+      sourceId: source.id,
+      title: `${source.platform} — manual search`,
+      content: source.surfaceSummary || "Review manually before engaging.",
+      actionLabel: `Open ${source.platform} search`,
+      coverageType: "manual",
+      coverageLabel: "Manual review",
       community: source.community,
       platform: source.platform,
       group: source.group,
@@ -426,7 +369,7 @@ async function fetchCommunitySource(source, context) {
       headline: `${source.platform} surface for your workspace keywords`,
       summary: source.surfaceSummary || `Open ${source.platform} to review live conversations matching your workspace keywords.`,
       cta: `Open ${source.platform}`,
-      publishedAt: new Date().toISOString(),
+      publishedAt: null,
       isSurface: true,
     }];
   }
@@ -451,14 +394,14 @@ async function fetchCommunitySource(source, context) {
 
     const body = await response.text();
     return parseHtmlSource(body, source, context);
-  } catch {
-    return [];
+  } catch (error) {
+    throw error;
   }
 }
 
 function parseJsonSource(payload, source, context) {
   if (source.kind === "reddit") {
-    return (payload?.data?.children || []).filter((child) => matchesCommunityTerms(`${child?.data?.title || ""} ${child?.data?.selftext || ""}`, context, source)).slice(0, 3).map((child, index) => {
+    return (payload?.data?.children || []).filter((child) => matchesCommunityTerms(`${child?.data?.title || ""} ${child?.data?.selftext || ""}`, context, source)).slice(0, 8).map((child, index) => {
       const data = child?.data || {};
       return makeCommunitySignal(source, {
         idPart: data.id || index,
@@ -471,17 +414,17 @@ function parseJsonSource(payload, source, context) {
   }
 
   if (source.kind === "hn") {
-    return (payload?.hits || []).filter((hit) => matchesCommunityTerms(`${hit.title || ""} ${hit.story_title || ""} ${hit.comment_text || ""} ${hit.story_text || ""}`, context, source)).slice(0, 3).map((hit, index) => makeCommunitySignal(source, {
+    return (payload?.hits || []).filter((hit) => matchesCommunityTerms(`${hit.title || ""} ${hit.story_title || ""} ${hit.comment_text || ""} ${hit.story_text || ""}`, context, source)).slice(0, 8).map((hit, index) => makeCommunitySignal(source, {
       idPart: hit.objectID || index,
       title: hit.title || hit.story_title || "Hacker News data platform thread",
       signal: clipText(hit.comment_text || hit.title || hit.story_text || "", 260),
-      url: hit.url || (hit.objectID ? `https://news.ycombinator.com/item?id=${hit.objectID}` : source.sourceUrl),
+      url: hit.objectID ? `https://news.ycombinator.com/item?id=${hit.objectID}` : source.sourceUrl,
       publishedAt: toIsoDate(hit.created_at || new Date().toISOString()),
     }, context));
   }
 
   if (source.kind === "stackexchange") {
-    return (payload?.items || []).filter((item) => matchesCommunityTerms(`${item.title || ""} ${(item.tags || []).join(" ")}`, context, source)).slice(0, 3).map((item, index) => makeCommunitySignal(source, {
+    return (payload?.items || []).filter((item) => matchesCommunityTerms(`${item.title || ""} ${(item.tags || []).join(" ")}`, context, source)).slice(0, 8).map((item, index) => makeCommunitySignal(source, {
       idPart: item.question_id || index,
       title: cleanText(item.title || "Stack Overflow warehouse question"),
       signal: `Tags: ${(item.tags || []).slice(0, 5).join(", ") || "warehouse, Netezza"}. This is a technical question surface that can shape support and enablement content.`,
@@ -494,7 +437,7 @@ function parseJsonSource(payload, source, context) {
     return (payload?.items || []).filter((item) => (
       matchesCommunityTerms(`${item.title || ""} ${item.body || ""}`, context, source) &&
       (source.trustQueryMatch || matchesCommunityTerms(item.title || "", context, { requiredAny: source.titleRequiredAny || source.requiredAny }))
-    )).slice(0, 3).map((item, index) => makeCommunitySignal(source, {
+    )).slice(0, 8).map((item, index) => makeCommunitySignal(source, {
       idPart: item.id || index,
       title: item.title || "GitHub Netezza issue",
       signal: clipText(item.body || item.title || "", 260),
@@ -527,6 +470,7 @@ function makeCommunitySignal(source, match, context) {
   const signal = clipText(match.signal || title, 300);
   return {
     id: `${source.id}-${slugify(match.idPart || title).slice(0, 42)}`,
+    sourceId: source.id,
     play: source.play,
     community: source.community,
     platform: source.platform,
@@ -562,17 +506,14 @@ function matchesCommunityTerms(value, context, source = {}) {
     return false;
   }
 
-  if (source?.trustQueryMatch) return true;
+  // Search engines may broaden queries; verify every returned result locally.
   const sourceTerms = normalizeList(source.requiredAny || []);
   const contextTerms = normalizeList(context?.keywords || []);
-  const productTokens = String(context?.productName || "")
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .filter((token) => token.length > 2 && token !== "ibm");
+  const productTokens = contextTerms.length ? [] : [String(context?.productName || "").toLowerCase().replace(/^ibm\s+/, "")];
   const terms = [...sourceTerms, ...contextTerms, ...productTokens].map((term) => term.toLowerCase()).filter(Boolean);
   if (!terms.length) return true;
   const excludedTerms = [...COMMUNITY_EXCLUDE_TERMS, ...normalizeList(source.excludeAny || [])].map((term) => term.toLowerCase()).filter(Boolean);
-  return terms.some((term) => haystack.includes(term)) && !excludedTerms.some((term) => haystack.includes(term));
+  return terms.some((term) => new RegExp(`(^|[^a-z0-9])${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9]|$)`, "i").test(haystack)) && !excludedTerms.some((term) => haystack.includes(term));
 }
 
 function buildRecommendation(source, signal, productName) {
@@ -741,10 +682,11 @@ function hoursSince(value) {
 function dedupeById(items) {
   const seen = new Set();
   return items.filter((item) => {
-    if (seen.has(item.id)) {
+    const key = item.sourceUrl || item.id;
+    if (seen.has(key)) {
       return false;
     }
-    seen.add(item.id);
+    seen.add(key);
     return true;
   });
 }

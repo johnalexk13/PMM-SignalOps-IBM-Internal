@@ -1,3 +1,5 @@
+import { buildPmmDraft, buildContentDraft } from "./lib/asset-drafts.mjs";
+import { appendHistory, snapshotFilename, snapshotMarkdown, fetchJson, validateWorkspacePayload } from "./lib/workspace-tools.mjs";
 const LEGACY_STORAGE_KEY = "ibm-netezza-product-marketing-insights-v1";
 const STORAGE_KEY_PREFIX = "signalops-internal-product-marketing-insights-v1";
 const AUTH_USERS_KEY = "signalops-internal-auth-users-v1";
@@ -2568,6 +2570,7 @@ let communityRefreshTimer = null;
 let marketRequestSequence = 0;
 let communityRequestSequence = 0;
 let eventsAttached = false;
+const pendingRefreshes = new Map();
 
 boot();
 function boot() {
@@ -2795,6 +2798,9 @@ async function hashPassword(email, password) {
 }
 
 function handleSignOut() {
+  marketRequestSequence += 1;
+  communityRequestSequence += 1;
+  document.querySelector("#historyDialog")?.close();
   removeLocalStorageValue(AUTH_SESSION_KEY);
   authContext = getAuthContext();
   accountContext = getAccountContext();
@@ -2868,9 +2874,9 @@ function hydrateState() {
     contentIdeaExpandedId: activeWorkspace.contentIdeaExpandedId || saved?.contentIdeaExpandedId || "",
     pmmActionExpandedId: activeWorkspace.pmmActionExpandedId || saved?.pmmActionExpandedId || "",
     marketFeedFilter: activeWorkspace.marketFeedFilter || saved?.marketFeedFilter || "all",
-    marketFeed: hydrateMarketFeedState(activeWorkspace.marketFeed, { loading: activeProductId === DEFAULT_FOCUS_PRODUCT_ID }),
+    marketFeed: hydrateMarketFeedState(activeWorkspace.marketFeed),
     liveInsights: hydrateLiveInsightsState(activeWorkspace.liveInsights, { loading: activeProductId === DEFAULT_FOCUS_PRODUCT_ID }),
-    communityFeed: hydrateCommunityFeedState(activeWorkspace.communityFeed, { loading: activeProductId === DEFAULT_FOCUS_PRODUCT_ID }),
+    communityFeed: hydrateCommunityFeedState(activeWorkspace.communityFeed),
     documentSources: activeProductId ? hydrateDocumentSources(activeWorkspace.documentSources || saved?.documentSources) : [],
     filters: hydrateFilters(activeProductId ? activeWorkspace.filters || saved?.filters : null),
     sources: activeProductId ? hydrateSources(buildAutoSourcesForWorkspace(activeWorkspace, activeWorkspace.competitors)) : hydrateEmptySources(),
@@ -3061,6 +3067,7 @@ function normalizeProductWorkspace(workspace) {
     communityKeywords: filterLegacyDefaultValues(workspace.communityKeywords, DEFAULT_COMMUNITY_KEYWORDS),
     communityPlatforms: filterLegacyDefaultValues(workspace.communityPlatforms, DEFAULT_COMMUNITY_PLATFORMS),
     communityMeta: workspace.communityMeta || { lastUpdated: new Date().toISOString() },
+    history: Array.isArray(workspace.history) ? workspace.history : [],
     marketFeed: workspace.marketFeed || null,
     liveInsights: workspace.liveInsights || null,
     communityFeed: workspace.communityFeed || null,
@@ -3135,7 +3142,7 @@ function hydrateMarketFeedState(savedMarketFeed, { loading = false } = {}) {
       totalSources: 0,
       failedSources: 0,
     },
-    items: clone(MARKET_SIGNAL_ITEMS),
+    items: [],
   };
 
   if (!savedMarketFeed || typeof savedMarketFeed !== "object") {
@@ -3147,7 +3154,7 @@ function hydrateMarketFeedState(savedMarketFeed, { loading = false } = {}) {
     ...clone(savedMarketFeed),
     loading: false,
     error: savedMarketFeed.error || "",
-    items: Array.isArray(savedMarketFeed.items) && savedMarketFeed.items.length ? clone(savedMarketFeed.items) : fallback.items,
+    items: Array.isArray(savedMarketFeed.items) ? clone(savedMarketFeed.items) : fallback.items,
   };
 }
 
@@ -4464,7 +4471,7 @@ function renderPmmActionPage(page) {
       <div>
         <p class="section-kicker">${escapeHtml(page.badge)}</p>
         <h2>PMM action centre</h2>
-        <p class="section-copy">Click any action to expand a ready-to-use outline grounded in competitor pressure, source citations, and product positioning.</p>
+        <p class="section-copy">Click any action to expand a first draft grounded in competitor pressure, source citations, and product positioning.</p>
       </div>
     </div>
     ${renderLiveFeedStatusStrip(feedStatus.label, feedStatus.updated, "PMM actions are generated from live competitor social, review, and blog monitoring surfaces.", state.marketFeed?.loading, state.marketFeed?.error)}
@@ -4480,7 +4487,7 @@ function renderPmmActionPage(page) {
         <div>
           <p class="panel-kicker">Recommended assets - click any to expand outline</p>
           <h3>Recommended PMM assets for ${escapeHtml(productShortName)}</h3>
-          <p class="panel-subcopy">Each action is mapped to competitor pressure and includes a ready-to-use asset outline for PMM review.</p>
+          <p class="panel-subcopy">Each action is mapped to competitor pressure and includes an downloadable first draft for PMM review.</p>
         </div>
       </div>
       <div class="pmm-action-list">
@@ -4851,7 +4858,7 @@ Email 3 - Proof
   ];
 
   const signalByCompetitor = new Map();
-  signals.forEach((signal) => {
+  [...signals].sort((a, b) => (Number(b.coverageType === "live") * 10 + Number(b.group === "blog")) - (Number(a.coverageType === "live") * 10 + Number(a.group === "blog"))).forEach((signal) => {
     const key = normalizeListValue(signal.competitor);
     if (!signalByCompetitor.has(key)) signalByCompetitor.set(key, signal);
   });
@@ -4882,12 +4889,13 @@ Email 3 - Proof
           coverageType: signal.coverageType || "static",
           coverageLabel: signal.coverageLabel || "Static",
         }],
-        outline: template.outline(competitor.name, signal),
+        outline: buildPmmDraft({ product: getActiveProductWorkspace(), signal: { ...signal, competitor: competitor.name }, title: template.title(competitor.name, signal), format: template.id }),
       });
     });
   });
 
-  return actions.slice(0, 14);
+  // Interleave competitors so every configured rival appears before the next format.
+  return actions.sort((a, b) => templates.findIndex(t => a.id.endsWith(`-${t.id}`)) - templates.findIndex(t => b.id.endsWith(`-${t.id}`)));
 }
 
 function renderProductPage(page) {
@@ -5373,14 +5381,7 @@ function renderContentPage(page) {
   const section = getLiveSectionData("content");
   const feedStatus = getMarketFeedStatus();
   const alert = section?.alert || getProductSpecificValue("contentAlert", CONTENT_IDEA_ALERT);
-  const allIdeas = section?.ideas?.length ? section.ideas : getProductSpecificValue("contentIdeas", CONTENT_IDEAS);
-  // Always show at least 10 ideas: first, take those that match configured
-  // competitors; then pad with remaining ideas (no counter-tag filter) until
-  // the minimum is reached. This ensures a full page even when only 1–2
-  // competitors are configured.
-  const matched = allIdeas.filter(isConfiguredCompetitorInsight);
-  const extras = allIdeas.filter((idea) => !matched.includes(idea));
-  const ideas = matched.length >= 10 ? matched : [...matched, ...extras].slice(0, Math.max(matched.length, 10));
+  const ideas = getContentIdeas();
   return `
     <div class="section-heading">
       <div>
@@ -5400,9 +5401,9 @@ function renderContentPage(page) {
     <article class="panel content-ideas-panel">
       <div class="panel-header">
         <div>
-          <p class="panel-kicker">Competitor-driven content recommendations — Q2 2026</p>
+          <p class="panel-kicker">Competitor-driven content recommendations</p>
           <h3>Thought leadership content mapped to competitor gaps</h3>
-          <p class="panel-subcopy">Each recommendation is generated from live competitor blog, web, and review feeds. Includes the best publishing platform and a ready-to-use draft outline.</p>
+          <p class="panel-subcopy">Each recommendation is generated from live competitor blog, web, and review feeds. Includes the best publishing platform and a downloadable first draft.</p>
         </div>
       </div>
       <div class="content-idea-list">
@@ -5616,19 +5617,16 @@ function renderMarketSignalItem(item) {
 }
 
 function getMarketSignalCoverage(item) {
-  const type = item.coverageType === "live" ? "live" : "static";
+  const type = item.coverageType === "live" ? "live" : item.coverageType === "cached" ? "cached" : "static";
   return {
     type,
-    label: type === "live" ? "Live" : "Static",
+    label: type === "live" ? "Live" : type === "cached" ? "Saved result" : "Static",
   };
 }
 
 function getCommunitySignalCoverage(item) {
-  const type = item?.coverageType === "live" ? "live" : "static";
-  return {
-    type,
-    label: type === "live" ? "Live" : "Static",
-  };
+  const type = item?.coverageType || "static";
+  return { type, label: item?.isSurface ? "Manual review" : type === "live" ? "Live" : type === "cached" ? "Saved result" : "Manual review" };
 }
 
 function renderSourceEvidenceBox(pageId, { section = "market" } = {}) {
@@ -6041,7 +6039,7 @@ function renderPmmActionItem(action, expandedActionId) {
           </div>
         </div>
         <button class="pmm-action-button" type="button" data-pmm-action="${action.id}">
-          ${expanded ? "Close" : "Outline"}
+          ${expanded ? "Close" : "Draft"}
         </button>
       </div>
       ${expanded ? `<div class="pmm-outline-panel"><pre>${escapeHtml(action.outline)}</pre></div>` : ""}
@@ -6176,7 +6174,7 @@ function getCommunityGroupsForBucket(bucketId) {
     ? state.communityFeed.items.filter((item) => item.play === bucketId)
     : [];
 
-  if (!state.communityFeed?.loading && liveItems.length) {
+  if (liveItems.length) {
     const grouped = new Map();
     liveItems.forEach((item) => {
       const key = `${item.community || item.platform}::${item.group || item.sourceLabel}`;
@@ -6201,6 +6199,7 @@ function getCommunityGroupsForBucket(bucketId) {
         dateLabel: item.dateLabel || "",
         actionLabel: item.actionLabel || "Open source",
         isNew: Boolean(item.isNew),
+        isSurface: Boolean(item.isSurface),
         coverageType: item.coverageType,
         coverageLabel: item.coverageLabel,
       });
@@ -6209,7 +6208,7 @@ function getCommunityGroupsForBucket(bucketId) {
     return [...grouped.values()];
   }
 
-  return COMMUNITY_SIGNAL_GROUPS.filter((group) => group.play === bucketId);
+  return [];
 }
 
 function getCommunityFeedStatus() {
@@ -6220,7 +6219,7 @@ function getCommunityFeedStatus() {
   const detail = state.communityFeed?.error
     ? "The dashboard is using saved community guidance because the latest crawler refresh did not complete."
     : meta.totalSources
-      ? `${meta.activeSources || 0} of ${meta.totalSources} monitored community sources produced source-backed items${meta.failedSources ? `; ${meta.failedSources} ${pluralVerb(meta.failedSources)} covered by fallback coverage` : ""}.`
+      ? `${meta.activeSources || 0}/${meta.totalSources} sources returned matches; ${meta.emptySources || 0} had no matches; ${meta.failedSources || 0} failed; ${meta.manualSources || 0} require manual review.`
       : "Monitoring approved community, social, forum, Q&A, and developer sources.";
   const updated = meta.lastUpdated
     ? `Last refresh: ${formatDateTime(new Date(meta.lastUpdated))}`
@@ -6236,7 +6235,7 @@ function getCommunityFeedStatus() {
 
 function getCommunitySuggestionItems() {
   const liveItems = Array.isArray(state.communityFeed?.items) ? state.communityFeed.items : [];
-  if (!state.communityFeed?.loading && liveItems.length) {
+  if (liveItems.length) {
     return liveItems.slice(0, 6).map((item) => ({
       community: `${item.community || item.platform} - ${item.group || item.sourceLabel}`,
       source: item.sourceLabel || item.platform || "Source",
@@ -6270,24 +6269,24 @@ function renderCommunitySignalsPage(page) {
   const bucket = getCommunityBucketForPage(page.id);
   const groups = getCommunityGroupsForBucket(bucket.id);
   const status = getCommunityFeedStatus();
-  const discussionCount = groups.reduce((sum, group) => sum + group.discussions.length, 0);
+  const discussionCount = groups.reduce((sum, group) => sum + group.discussions.filter(item => !item.isSurface).length, 0);
   const bucketMetrics = bucket.id === "announcements"
     ? [
         ["Communities found", String(groups.length), "neutral", "Release-aware shortlist", "Communities most suitable for launch notes, release posts, and announcement visibility."],
-        ["Active discussion pages", String(discussionCount), "positive", "Announcement-friendly threads", `Existing discussion pages where a ${getFocusProductShortName()} release can join the conversation at the right moment.`],
+        ["Matched discussion pages", String(discussionCount), "positive", "Announcement-friendly threads", `Existing discussion pages where a ${getFocusProductShortName()} release can join the conversation at the right moment.`],
         ["Community links", String(state.communityPlatforms.length), "warn", "Editable in Manage", "Community links currently in scope for launch and release sharing."],
         ["Best move", "Release drop", "neutral", "Right-time distribution", `Use these spaces when ${getFocusProductDisplayName()} has a product update, release note, or formal announcement.`],
       ]
     : bucket.id === "thought-leadership"
       ? [
           ["Communities found", String(groups.length), "neutral", "POV-ready shortlist", "Communities where architecture framing and category narrative posts can travel well."],
-          ["Active discussion pages", String(discussionCount), "positive", "Debate-heavy threads", "Discussion pages where warehouse, lakehouse, and modernization narratives are actively being shaped."],
+          ["Matched discussion pages", String(discussionCount), "positive", "Debate-heavy threads", "Discussion pages where warehouse, lakehouse, and modernization narratives are actively being shaped."],
           ["Focus themes", String(state.communityKeywords.length), "neutral", "Editable in Manage", "Keyword themes that drive which category debates stay in scope."],
           ["Best move", "Architecture POV", "warn", "Narrative shaping", `Use these spaces for ${getFocusProductDisplayName()} thought leadership rather than direct launch promotion.`],
         ]
       : [
           ["Communities found", String(groups.length), "neutral", "Reply-ready shortlist", "Communities where the best move is a contextual reply inside an existing thread."],
-          ["Active discussion pages", String(discussionCount), "positive", "Conversation entry points", "Discussion pages where the team can respond with proof, guidance, or a thread-native follow-up."],
+          ["Matched discussion pages", String(discussionCount), "positive", "Conversation entry points", "Discussion pages where the team can respond with proof, guidance, or a thread-native follow-up."],
           ["Focus themes", String(state.communityKeywords.length), "neutral", "Editable in Manage", "Keyword themes currently shaping which conversations get prioritized."],
           ["Best move", "Direct reply", "warn", "Thread-native engagement", "Use these spaces when the strongest action is a contextual response instead of a standalone post."],
         ];
@@ -6301,7 +6300,8 @@ function renderCommunitySignalsPage(page) {
       </div>
       <button class="secondary-button" type="button" data-community-refresh>Refresh now</button>
     </div>
-    ${renderLiveFeedStatusStrip(communityFeedStatus.label, communityFeedStatus.updated, "Community signals are pulled from live community platform feeds based on your configured keywords and links.", state.communityFeed?.loading, state.communityFeed?.error)}
+    ${renderLiveFeedStatusStrip(communityFeedStatus.label, communityFeedStatus.updated, communityFeedStatus.detail, state.communityFeed?.loading, state.communityFeed?.error)}
+    ${renderCommunityCoverage()}
     <section class="metrics-grid">
       ${bucketMetrics.map((metric, index) => renderMetricCard(metric[0], metric[1], metric[2], metric[3], metric[4], index === 0)).join("")}
     </section>
@@ -6336,7 +6336,7 @@ function renderCommunitySignalsPage(page) {
                 </div>
                 <div class="tag-row">
                   <span class="tag tone-${page.tone}">${escapeHtml(bucket.label)}</span>
-                  <span class="mini-pill">${group.discussions.length} discussion ${group.discussions.length === 1 ? "page" : "pages"}</span>
+                  <span class="mini-pill">${group.discussions.length} ${group.discussions.some(item => item.isSurface) ? "manual search links" : "matched discussions"}</span>
                 </div>
               </div>
               <p class="summary-copy"><strong>Why this is relevant:</strong> ${escapeHtml(focusProductText(group.fit))}</p>
@@ -6736,6 +6736,7 @@ function renderSidebarCompetitors() {
 }
 
 function updateHeaderMeta() {
+  renderPageTools();
   if (refs.userProfileEmail) {
     refs.userProfileEmail.textContent = accountContext.email || authContext.currentUser?.email || "Not signed in";
   }
@@ -6833,6 +6834,7 @@ function setActivePage(pageId, { scrollToTop = false } = {}) {
   }
   [...refs.sidebarPageNav.querySelectorAll("[data-page-target]")].forEach((button) => button.classList.toggle("active", button.dataset.pageTarget === state.activePage));
   Object.entries(refs.sections).forEach(([id, section]) => section.classList.toggle("active", id === state.activePage));
+  renderPageTools();
   persistShellState();
   if (scrollToTop) {
     requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
@@ -6879,6 +6881,7 @@ function attachEvents() {
     }
 
     if (!authContext.currentUser) return;
+    if (handlePageToolClick(event)) return;
 
     const sectionTab = event.target.closest("[data-section-target]");
     if (sectionTab) {
@@ -7391,6 +7394,9 @@ function deleteFocusProduct(productId) {
 }
 
 function applyProductWorkspace(workspace) {
+  marketRequestSequence += 1;
+  communityRequestSequence += 1;
+  document.querySelector("#historyDialog")?.close();
   state.sources = hydrateSources(rebaseSourcesForProduct(workspace.sources, workspace, workspace));
   state.filters = hydrateFilters(workspace.filters);
   state.communityKeywords = hydrateCommunityKeywords(productizeForFocusProduct(workspace.communityKeywords || buildDefaultCommunityKeywordsForProduct(workspace), workspace));
@@ -7797,12 +7803,9 @@ function stripHeavyContentFromWorkspaces(productWorkspaces) {
           ? doc
           : { ...doc, dataUrl: "", storageMode: doc.extractedText ? "Analyzed - text saved" : "Metadata only - content too large to keep after a reload" }
       )),
-      marketFeed: workspace.marketFeed
-        ? { ...workspace.marketFeed, items: (workspace.marketFeed.items || []).slice(0, 25) }
-        : workspace.marketFeed,
-      communityFeed: workspace.communityFeed
-        ? { ...workspace.communityFeed, items: (workspace.communityFeed.items || []).slice(0, 25) }
-        : workspace.communityFeed,
+      history: (workspace.history || []).filter((item, index, items) => items.findIndex(previous => previous.pageId === item.pageId) === index),
+      marketFeed: workspace.marketFeed,
+      communityFeed: workspace.communityFeed,
     };
   });
   return slimmed;
@@ -7842,7 +7845,7 @@ function persistShellState({ touchWorkspace = false } = {}) {
   const slimSaved = setStorage(JSON.stringify(buildShellPayload({ slim: true })));
   if (typeof showWorkspaceSaveStatus === "function") {
     showWorkspaceSaveStatus(slimSaved
-      ? "Browser storage is full - large document content will not survive a reload"
+      ? "Browser storage is full - keeping the latest history version per page and document text. Download older versions to keep them."
       : "Browser storage is full - recent changes could not be saved locally");
   }
 }
@@ -7892,6 +7895,8 @@ function getPersistableLiveInsights() {
     error: state.liveInsights.error || "",
     meta: clone(state.liveInsights.meta || {}),
     sections: clone(state.liveInsights.sections || null),
+    capabilityEvidence: clone(state.liveInsights.capabilityEvidence || null),
+    propelInsights: clone(state.liveInsights.propelInsights || null),
   };
 }
 
@@ -8081,7 +8086,7 @@ function startMarketAutoRefresh() {
   }, MARKET_REFRESH_INTERVAL_MS);
 }
 
-async function loadMarketSignals({ force = false, showLoadingState = true } = {}) {
+async function performMarketRefresh({ force = false, showLoadingState = true } = {}) {
   if (!hasActiveProductWorkspace()) {
     state.marketFeed.loading = false;
     state.marketFeed.error = "";
@@ -8092,7 +8097,12 @@ async function loadMarketSignals({ force = false, showLoadingState = true } = {}
     return;
   }
 
+  const requestContext = workspaceRequestContext("market");
+  if (state.marketFeed.loading && state.marketFeed.requestContext === requestContext) return;
   const requestId = ++marketRequestSequence;
+  state.marketFeed.requestContext = requestContext;
+  state.marketFeed.loading = true;
+  state.liveInsights.loading = true;
 
   if (showLoadingState) {
     state.marketFeed.loading = true;
@@ -8104,11 +8114,15 @@ async function loadMarketSignals({ force = false, showLoadingState = true } = {}
 
   try {
     const { payload, mode } = await fetchWorkspaceIntelligencePayload({ force });
-    if (requestId !== marketRequestSequence) {
+    if (requestId !== marketRequestSequence || requestContext !== workspaceRequestContext("market")) {
       return;
     }
 
+    validateWorkspacePayload(payload, state.activeProductId);
     const feed = payload.marketFeed || {};
+    if (!feed.meta?.activeSources && state.marketFeed.items.some(item => item.coverageType === "live" || item.coverageType === "cached")) {
+      throw new Error("No live sources completed; retaining the last successful snapshot");
+    }
     state.marketFeed = {
       loading: false,
       error: "",
@@ -8116,9 +8130,7 @@ async function loadMarketSignals({ force = false, showLoadingState = true } = {}
         ...(feed.meta || payload.meta || state.marketFeed.meta),
         refreshCompletedAt: new Date().toISOString(),
       },
-      items: Array.isArray(feed.items) && feed.items.length
-        ? feed.items.filter(isConfiguredCompetitorSignal)
-        : getProductMarketSignalItems(),
+      items: mergeMarketSnapshot(feed.items.filter(isConfiguredCompetitorSignal), state.marketFeed.items),
     };
     state.liveInsights = {
       loading: false,
@@ -8132,20 +8144,19 @@ async function loadMarketSignals({ force = false, showLoadingState = true } = {}
       propelInsights: payload.propelInsights || state.liveInsights.propelInsights || null,
     };
   } catch (error) {
-    if (requestId !== marketRequestSequence) {
+    if (requestId !== marketRequestSequence || requestContext !== workspaceRequestContext("market")) {
       return;
     }
 
     state.marketFeed = {
       ...state.marketFeed,
       loading: false,
-      error: "Live source refresh failed, so this page is showing seeded fallback competitor signals instead of fresh external-source results.",
-      items: getProductMarketSignalItems(),
+      error: "Refresh did not complete. Your last saved competitive snapshot is still available. Try Refresh again.",
     };
     state.liveInsights = {
       ...state.liveInsights,
       loading: false,
-      error: "Live insight generation is temporarily unavailable, so the workspace is using seeded strategic recommendations.",
+      error: "The last successful insight snapshot has been retained.",
     };
   }
 
@@ -8154,8 +8165,10 @@ async function loadMarketSignals({ force = false, showLoadingState = true } = {}
   renderPage("content");
   renderPage("events");
   renderPage("product");
+  renderPage("positioning");
   renderAllCommunityPages();
   renderOverview();
+  if (!state.marketFeed.error) archivePages(["overview", "content", "events", "market", "product", "positioning"]);
   updateHeaderMeta();
 }
 
@@ -8280,56 +8293,24 @@ async function fetchWorkspaceIntelligencePayload({ force = false } = {}) {
   requestBody.competitors = configuredCompetitors.map(c => ({ name: c.name, url: c.url || "" }));
   requestBody.documents = buildAnalyzableDocuments();
   try {
-    const postResponse = await fetch(`/api/workspace-intelligence`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      cache: "no-store",
-      body: JSON.stringify(requestBody),
-    });
-    if (postResponse.ok) {
-      return {
-        payload: await postResponse.json(),
-        mode: "api",
-      };
-    }
+    const payload = await fetchJson("/api/workspace-intelligence", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      cache: "no-store", body: JSON.stringify(requestBody),
+    }, { timeoutMs: 65000, retries: 1 });
+    return { payload: validateWorkspacePayload(payload, product.id), mode: "api" };
   } catch (error) {
-    console.warn("[dashboard] POST workspace-intelligence failed, falling back to GET", error);
+    // Static hosting has no API. Never replace a saved workspace on a transient
+    // failure, or load a published snapshot for a different product/competitor set.
+    if (![404, 405].includes(error.status) || state.liveInsights.sections) throw error;
+    const payload = validateWorkspacePayload(await fetchJson(STATIC_WORKSPACE_INTELLIGENCE_ENDPOINT, { cache: "no-store" }, { retries: 0 }), product.id);
+    const expected = competitors.map(item => canonicalCompetitorName(item.name)).sort().join("|");
+    const actual = (payload.marketFeed.meta?.competitors || []).map(item => canonicalCompetitorName(typeof item === "string" ? item : item.name)).sort().join("|");
+    if (expected !== actual) throw new Error("Published snapshot has a different competitor scope");
+    return { payload, mode: "static-snapshot" };
   }
-
-  const query = `?${params.toString()}`;
-  const candidateEndpoints = [`/api/workspace-intelligence${query}`, `/.netlify/functions/workspace-intelligence${query}`];
-
-  let lastError;
-
-  for (const endpoint of candidateEndpoints) {
-    try {
-      const response = await fetch(endpoint, { cache: "no-store" });
-      if (!response.ok) {
-        throw new Error(`Request failed with ${response.status} for ${endpoint}`);
-      }
-      return {
-        payload: await response.json(),
-        mode: "api",
-      };
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  const snapshotEndpoint = force ? `${STATIC_WORKSPACE_INTELLIGENCE_ENDPOINT}?refresh=${Date.now()}` : STATIC_WORKSPACE_INTELLIGENCE_ENDPOINT;
-  const snapshotResponse = await fetch(snapshotEndpoint, { cache: "no-store" });
-  if (!snapshotResponse.ok) {
-    throw new Error(`Snapshot request failed with ${snapshotResponse.status}`);
-  }
-  const payload = await snapshotResponse.json();
-  return {
-    payload,
-    mode: "static-snapshot",
-    apiError: lastError,
-  };
 }
 
-async function loadCommunitySignals({ force = false, showLoadingState = true } = {}) {
+async function performCommunityRefresh({ force = false, showLoadingState = true } = {}) {
   if (window.location.protocol === "file:") {
     return;
   }
@@ -8345,7 +8326,11 @@ async function loadCommunitySignals({ force = false, showLoadingState = true } =
     return;
   }
 
+  const requestContext = workspaceRequestContext("community");
+  if (state.communityFeed.loading && state.communityFeed.requestContext === requestContext) return;
   const requestId = ++communityRequestSequence;
+  state.communityFeed.requestContext = requestContext;
+  state.communityFeed.loading = true;
 
   if (showLoadingState) {
     state.communityFeed.loading = true;
@@ -8358,7 +8343,7 @@ async function loadCommunitySignals({ force = false, showLoadingState = true } =
 
   try {
     const payload = await fetchCommunitySignalsPayload({ force });
-    if (requestId !== communityRequestSequence) {
+    if (requestId !== communityRequestSequence || requestContext !== workspaceRequestContext("community")) {
       return;
     }
 
@@ -8366,11 +8351,11 @@ async function loadCommunitySignals({ force = false, showLoadingState = true } =
       loading: false,
       error: "",
       meta: payload.meta || state.communityFeed.meta,
-      items: Array.isArray(payload.items) ? payload.items : [],
+      items: mergeCommunitySnapshot(payload, state.communityFeed.items),
     };
     state.communityMeta.lastUpdated = payload.meta?.lastUpdated || new Date().toISOString();
   } catch (error) {
-    if (requestId !== communityRequestSequence) {
+    if (requestId !== communityRequestSequence || requestContext !== workspaceRequestContext("community")) {
       return;
     }
 
@@ -8380,7 +8365,6 @@ async function loadCommunitySignals({ force = false, showLoadingState = true } =
       error: "Community crawler refresh failed, so this page is showing saved community guidance.",
       items: Array.isArray(state.communityFeed.items) ? state.communityFeed.items : [],
     };
-    state.communityMeta.lastUpdated = new Date().toISOString();
   }
 
   persistAllState();
@@ -8388,6 +8372,7 @@ async function loadCommunitySignals({ force = false, showLoadingState = true } =
   renderPage("community-thought-leadership");
   renderPage("community-replies");
   renderPage("community-manage");
+  if (!state.communityFeed.error) archivePages(COMMUNITY_PAGE_IDS.filter(id => id !== "community-manage"));
   updateHeaderMeta();
 }
 
@@ -8400,22 +8385,9 @@ async function fetchCommunitySignalsPayload({ force = false } = {}) {
     params.set("refresh", String(Date.now()));
   }
   const query = `?${params.toString()}`;
-  const candidateEndpoints = [`/api/community-signals${query}`, `/.netlify/functions/community-signals${query}`];
-
-  let lastError;
-  for (const endpoint of candidateEndpoints) {
-    try {
-      const response = await fetch(endpoint, { cache: "no-store" });
-      if (!response.ok) {
-        throw new Error(`Request failed with ${response.status} for ${endpoint}`);
-      }
-      return await response.json();
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  throw lastError || new Error("Community signal endpoint unavailable");
+  const payload = await fetchJson(`/api/community-signals${query}`, { cache: "no-store" }, { timeoutMs: 20000 });
+  if (!Array.isArray(payload.items) || !payload.meta) throw new Error("Incomplete community response");
+  return payload;
 }
 
 function getMarketFeedStatus() {
@@ -8558,3 +8530,162 @@ function escapeAttribute(value) {
 }
 
 
+
+function workspaceRequestContext(kind) {
+  const product = getActiveProductWorkspace();
+  const setup = kind === "community"
+    ? { name: product.displayName, keywords: getPersistableCommunityKeywords(), platforms: getPersistableCommunityPlatforms() }
+    : { name: product.displayName, url: product.productUrl, description: product.description, buyer: product.primaryBuyer, competitors: getConfiguredCompetitors().map(({ name, url }) => ({ name, url })), documents: buildAnalyzableDocuments() };
+  return JSON.stringify({ account: accountContext.accountId, product: state.activeProductId, setup });
+}
+
+function mergeMarketSnapshot(incoming, saved) {
+  const freshUrls = new Set(incoming.filter(item => item.coverageType === "live").map(item => item.sourceUrl));
+  const retained = (saved || []).filter(item => isConfiguredCompetitorSignal(item) && ["live", "cached"].includes(item.coverageType) && !freshUrls.has(item.sourceUrl))
+    .map(item => ({ ...item, coverageType: "cached", coverageLabel: "Saved result", isNew: false }));
+  return dedupeSignalsBySource([...incoming.filter(item => item.coverageType === "live"), ...retained, ...incoming.filter(item => item.coverageType !== "live")]);
+}
+
+function getContentIdeas() {
+  const product = getActiveProductWorkspace();
+  const section = getLiveSectionData("content");
+  const matched = (section?.ideas || []).filter(idea => isConfiguredCompetitorInsight(idea) || idea.propelSourced);
+  const ideas = matched.map(idea => ({ ...idea, outline: buildContentDraft({ product, title: idea.title, format: idea.platform || "Blog / SEO", signal: { ...idea, sourceUrl: idea.sourceUrl || idea.citations?.[0]?.sourceUrl } }) }));
+  for (const competitor of getConfiguredCompetitors()) {
+    if (ideas.some(idea => canonicalCompetitorName(idea.competitor) === canonicalCompetitorName(competitor.name))) continue;
+    const signal = getRelevantMarketSignalItems().find(item => item.competitor === competitor.name && item.coverageType === "live") || { competitor: competitor.name, sourceUrl: competitor.url, coverageType: "static" };
+    const title = `${product.shortName} vs ${competitor.name}: a workload evaluation guide`;
+    ideas.push({ id: `content-${competitor.id}`, competitor: competitor.name, icon: "✎", title, summary: "An evidence-led comparison draft for the configured competitor, with evaluation questions and a clear next step.", platform: "Blog / SEO", tags: ["Comparison", competitor.name], outline: buildContentDraft({ product, signal, title, format: "Blog / SEO" }) });
+  }
+  return ideas;
+}
+
+function renderCommunityCoverage() {
+  const coverage = state.communityFeed.meta?.sourceCoverage || [];
+  if (!coverage.length) return "";
+  return `<details class="panel coverage-panel"><summary>Source coverage — matches, empty results and failures</summary><ul>${coverage.map(item => `<li><strong>${escapeHtml(item.label)}</strong>: ${escapeHtml(item.status)}${item.count ? ` (${item.count} results)` : ""}${item.reason ? ` — ${escapeHtml(item.reason)}` : ""}</li>`).join("")}</ul></details>`;
+}
+
+function getPageTitle(pageId) {
+  return pageId === "overview" ? "Overview" : pageId === "manage" ? "Manage" : (PAGE_CONFIG_BY_ID[pageId] || COMMUNITY_PAGE_CONFIG_BY_ID[pageId])?.title || pageId;
+}
+
+function renderPageTools() {
+  let toolbar = document.querySelector("#pageTools");
+  if (!toolbar) {
+    toolbar = document.createElement("div");
+    toolbar.id = "pageTools";
+    toolbar.className = "page-tools";
+    document.querySelector("main.content").prepend(toolbar);
+  }
+  toolbar.hidden = !hasActiveProductWorkspace() || !authContext.currentUser;
+  const count = (getActiveProductWorkspace()?.history || []).filter(item => item.pageId === state.activePage).length;
+  toolbar.innerHTML = `<span><strong>${escapeHtml(getPageTitle(state.activePage))}</strong> · ${escapeHtml(getFocusProductDisplayName())}</span>
+    <div class="page-tools-actions"><button class="secondary-button" data-save-insight>Save snapshot</button><button class="secondary-button" data-view-history>History (${count})</button><button class="secondary-button" data-download-page="md">Download Markdown</button><button class="secondary-button" data-download-page="json">Download JSON</button></div>
+    <span id="pageToolStatus" role="status" aria-live="polite"></span>`;
+}
+
+function pageToText(pageId) {
+  if (pageId === "manage" || pageId === "community-manage") {
+    const product = getActiveProductWorkspace();
+    return pageId === "community-manage"
+      ? `Community keywords\n${getPersistableCommunityKeywords().join("\n")}\n\nPlatforms\n${getPersistableCommunityPlatforms().join("\n")}`
+      : `Product: ${product.displayName}\nURL: ${product.productUrl}\nBuyer: ${product.primaryBuyer}\nDescription: ${product.description}\n\nCompetitors\n${getConfiguredCompetitors().map(item => `${item.name}: ${item.url}`).join("\n")}\n\nReference documents (metadata only)\n${state.documentSources.map(doc => doc.name).join("\n")}`;
+  }
+  const section = refs.sections[pageId].cloneNode(true);
+  section.querySelectorAll("button, input, select, textarea, script, style, svg, .content-outline-panel, .pmm-outline-panel").forEach(node => node.remove());
+  section.querySelectorAll("a[href]").forEach(node => { node.textContent = `${node.textContent.trim()} (${node.getAttribute("href")})`; });
+  section.querySelectorAll("h1,h2,h3,h4,p,li,article,pre,div,span,td,tr").forEach(node => { node.append(document.createTextNode("\n")); });
+  let text = section.textContent.replace(/[ \t]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  const drafts = pageId === "content" ? getContentIdeas() : pageId === "events" ? buildDynamicPmmActions() : [];
+  if (drafts.length) text += "\n\nFULL DRAFTS\n\n" + drafts.map(item => `${item.title}\n\n${item.outline}`).join("\n\n--------------------\n\n");
+  return text;
+}
+
+function createPageSnapshot(pageId) {
+  const createdAt = new Date().toISOString();
+  return { id: `${pageId}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, version: 1, productId: state.activeProductId, productName: getFocusProductDisplayName(), pageId, pageTitle: getPageTitle(pageId), createdAt, text: pageToText(pageId) };
+}
+
+function archivePages(pageIds) {
+  if (!hasActiveProductWorkspace()) return;
+  const workspace = getActiveProductWorkspace();
+  for (const pageId of pageIds) workspace.history = appendHistory(workspace.history, createPageSnapshot(pageId));
+  persistShellState();
+  renderPageTools();
+}
+
+function downloadSnapshot(entry, format) {
+  const blob = new Blob([format === "json" ? JSON.stringify(entry, null, 2) : snapshotMarkdown(entry)], { type: format === "json" ? "application/json" : "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = snapshotFilename(entry, format);
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function showHistory(selectedId = "") {
+  let dialog = document.querySelector("#historyDialog");
+  if (!dialog) {
+    dialog = document.createElement("dialog");
+    dialog.id = "historyDialog";
+    dialog.className = "history-dialog";
+    dialog.setAttribute("aria-labelledby", "historyTitle");
+    document.body.append(dialog);
+  }
+  const entries = (getActiveProductWorkspace()?.history || []).filter(item => item.pageId === state.activePage);
+  const selected = entries.find(item => item.id === selectedId) || entries[0];
+  dialog.innerHTML = `<div class="history-heading"><h2 id="historyTitle">${escapeHtml(getPageTitle(state.activePage))} history</h2><button class="secondary-button" data-close-history>Close history</button></div>
+    <p>${escapeHtml(getFocusProductDisplayName())} · Saved in this browser and profile. Up to 10 versions per page, subject to available storage. Downloads include full drafts and source links. Viewing history does not replace current insights.</p>
+    <div class="history-layout"><nav aria-label="Saved versions">${entries.length ? entries.map(item => `<button class="secondary-button ${selected?.id === item.id ? "selected" : ""}" data-history-entry="${escapeAttribute(item.id)}">${escapeHtml(formatDateTimePrecise(new Date(item.createdAt)))}</button>`).join("") : "No saved versions yet. Use Save snapshot or refresh the insights."}</nav>
+    <article>${selected ? `<div class="page-tools-actions"><button class="secondary-button" data-download-history="${escapeAttribute(selected.id)}" data-format="md">Download saved Markdown</button><button class="secondary-button" data-download-history="${escapeAttribute(selected.id)}" data-format="json">Download saved JSON</button></div><pre>${escapeHtml(selected.text)}</pre>` : ""}</article></div>`;
+  if (!dialog.open) dialog.showModal();
+}
+
+function handlePageToolClick(event) {
+  if (event.target.closest("[data-save-insight]")) {
+    archivePages([state.activePage]);
+    const saved = safeParse(getStorage())?.productWorkspaces?.[state.activeProductId]?.history || [];
+    document.querySelector("#pageToolStatus").textContent = saved.some(item => item.pageId === state.activePage && item.text === pageToText(state.activePage)) ? "Snapshot saved in this browser." : "Storage is full. Download this page to keep a copy.";
+    return true;
+  }
+  if (event.target.closest("[data-view-history]")) { showHistory(); return true; }
+  if (event.target.closest("[data-close-history]")) { document.querySelector("#historyDialog").close(); return true; }
+  const entry = event.target.closest("[data-history-entry]");
+  if (entry) { showHistory(entry.dataset.historyEntry); return true; }
+  const download = event.target.closest("[data-download-page]");
+  if (download) { downloadSnapshot(createPageSnapshot(state.activePage), download.dataset.downloadPage); return true; }
+  const savedDownload = event.target.closest("[data-download-history]");
+  if (savedDownload) {
+    const saved = getActiveProductWorkspace().history.find(item => item.id === savedDownload.dataset.downloadHistory);
+    if (saved) downloadSnapshot(saved, savedDownload.dataset.format);
+    return true;
+  }
+  return false;
+}
+
+function coalesceRefresh(kind, options, perform) {
+  const key = `${kind}:${workspaceRequestContext(kind)}`;
+  if (pendingRefreshes.has(key)) return pendingRefreshes.get(key);
+  const promise = perform(options).finally(() => pendingRefreshes.delete(key));
+  pendingRefreshes.set(key, promise);
+  return promise;
+}
+function loadMarketSignals(options = {}) { return coalesceRefresh("market", options, performMarketRefresh); }
+function loadCommunitySignals(options = {}) { return coalesceRefresh("community", options, performCommunityRefresh); }
+
+function mergeCommunitySnapshot(payload, saved = []) {
+  const unavailable = new Set((payload.meta.sourceCoverage || []).filter(source => ["failed", "cached"].includes(source.status)).map(source => source.id));
+  const items = [...payload.items];
+  const urls = new Set(items.map(item => item.sourceUrl));
+  for (const item of saved) {
+    if (!item.isSurface && unavailable.has(item.sourceId) && !urls.has(item.sourceUrl)) {
+      items.push({ ...item, coverageType: "cached", coverageLabel: "Saved result", isNew: false });
+      urls.add(item.sourceUrl);
+    }
+  }
+  return items;
+}

@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { getCommunitySignalsFeed } from "./community-signals.mjs";
 import { getMarketSignalsFeed } from "./market-signals.mjs";
 import { getWorkspaceIntelligence } from "./workspace-intelligence.mjs";
+import { readWorkspaceRequest } from "./lib/workspace-request.mjs";
 import { getPropelKnowledge } from "./lib/propel-knowledge.mjs";
 import aiContentSuggestions from "./api/ai-content-suggestions.mjs";
 import aiActionRecommendations from "./api/ai-action-recommendations.mjs";
@@ -19,6 +20,7 @@ const mimeTypes = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
+  ".mjs": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
   ".png": "image/png",
   ".jpg": "image/jpeg",
@@ -79,29 +81,8 @@ createServer(async (request, response) => {
     }
 
     if (pathname === "/api/workspace-intelligence" || pathname === "/.netlify/functions/workspace-intelligence") {
-      const force = url.searchParams.has("refresh");
-      const competitorsParam = url.searchParams.get("competitors");
-      let competitors = [];
-      if (competitorsParam) {
-        try {
-          competitors = JSON.parse(competitorsParam);
-        } catch (e) {
-          console.error("Invalid competitors parameter:", e);
-        }
-      }
-      sendJson(response, 200, await getWorkspaceIntelligence({
-        force,
-        competitors,
-        product: {
-          id: url.searchParams.get("productId") || "",
-          displayName: url.searchParams.get("productName") || "",
-          productName: url.searchParams.get("fullProductName") || "",
-          shortName: url.searchParams.get("shortName") || "",
-          description: url.searchParams.get("description") || "",
-          primaryBuyer: url.searchParams.get("primaryBuyer") || "",
-          productUrl: url.searchParams.get("productUrl") || "",
-        },
-      }));
+      if (!["GET", "POST"].includes(request.method)) { sendJson(response, 405, { error: "Method not allowed" }); return; }
+      sendJson(response, 200, await getWorkspaceIntelligence(await readWorkspaceRequest(request)));
       return;
     }
 
@@ -131,7 +112,7 @@ createServer(async (request, response) => {
 
     createReadStream(filePath).pipe(response);
   } catch (error) {
-    sendText(response, 500, `Server error: ${error.message}`);
+    sendJson(response, error.status || 500, { error: error.status ? error.message : "Server refresh failed" });
   }
 }).listen(port, () => {
   console.log(`SignalOps Product Marketing Insights running at http://localhost:${port}`);
