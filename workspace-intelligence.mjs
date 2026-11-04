@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { buildContentDraft, buildPmmDraft } from "./lib/asset-drafts.mjs";
 import { getMarketSignalsFeed } from "./market-signals.mjs";
 import { COMPETITOR_SOURCE_MAP, resolveCompetitorName } from "./lib/competitor-mapping.mjs";
 import {
@@ -723,7 +725,7 @@ async function buildDocumentEvidence({ documents = [], competitors = [] } = {}) 
 
 export async function getWorkspaceIntelligence({ force = false, product = {}, competitors = DEFAULT_COMPETITORS, documents = [] } = {}) {
   const productProfile = resolveProductProfile(product);
-  const cacheKey = JSON.stringify({ product: productProfile.cacheKey, competitors, documents: documents.map((doc) => `${doc?.name || ""}:${(doc?.text || doc?.url || "").length}`) });
+  const cacheKey = createHash("sha256").update(JSON.stringify({ product, competitors, documents })).digest("hex");
   const now = Date.now();
   if (!force && cache.payload && cache.key === cacheKey && cache.expiresAt > now) {
     console.log(`[workspace-intelligence] Cache hit for competitors: ${competitors.map((c) => (typeof c === "string" ? c : c?.name || "")).filter(Boolean).join(', ')}`);
@@ -740,17 +742,17 @@ export async function getWorkspaceIntelligence({ force = false, product = {}, co
     // contain "${shortName}" template interpolation. When the product is unconfigured
     // (kind === "generic"), fall back to "IBM Netezza" so titles render correctly.
     getPropelKnowledge({
-      productName: (productProfile.kind === "generic" || !productProfile.kind)
-        ? "IBM Netezza"
-        : (productProfile.displayName || productProfile.productName || "IBM Netezza"),
+      productName: productProfile.displayName || productProfile.productName,
       competitors: competitorNames,
       force,
     }),
   ]);
 
   const signals = Array.isArray(marketFeed.items) ? marketFeed.items : [];
-  const capabilityEvidence = await scanCapabilityEvidence({ productProfile, competitors, marketItems: signals, documents });
-  const documentEvidence = await buildDocumentEvidence({ documents, competitors });
+  const [capabilityEvidence, documentEvidence] = await Promise.all([
+    scanCapabilityEvidence({ productProfile, competitors, marketItems: signals, documents }),
+    buildDocumentEvidence({ documents, competitors }),
+  ]);
   const evidenceInput = [...signals, ...documentEvidence];
   const evidenceDatabase = buildEvidenceDatabase({ marketItems: evidenceInput });
 
@@ -766,7 +768,7 @@ export async function getWorkspaceIntelligence({ force = false, product = {}, co
     ]);
   }
 
-  const content = localizeForProduct(buildContentSection(rankEvidenceForPurpose(evidenceDatabase.items, "content", { limit: MAX_CONTENT_IDEAS, diversify: false }), productProfile, aiContentSuggestions, propelKnowledge), productProfile);
+  const content = localizeForProduct(buildContentSection(rankEvidenceForPurpose(evidenceDatabase.items, "content", { limit: MAX_CONTENT_IDEAS, diversify: true }), productProfile, aiContentSuggestions, propelKnowledge), productProfile);
   const events = localizeForProduct(buildPmmSection(rankEvidenceForPurpose(evidenceDatabase.items, "pmm", { limit: 16, diversify: false }), productProfile, aiPMMActions, propelKnowledge), productProfile);
   const productSection = localizeForProduct(buildProductSection(rankEvidenceForPurpose(evidenceDatabase.items, "product", { limit: 16, diversify: false }), productProfile, competitors, capabilityEvidence), productProfile);
   const positioning = localizeForProduct(buildPositioningSection(rankEvidenceForPurpose(evidenceDatabase.items, "positioning", { limit: 12, diversify: false }), productSection, productProfile, propelKnowledge), productProfile);
@@ -937,7 +939,7 @@ function buildContentSection(signals, productProfile, aiContentSuggestions = nul
       publishedAt: item.publishedAt || new Date().toISOString(),
       icon: "★",
       title: item.title,
-      summary: `${clipText(item.snippet || "", 220)} — Source: ${item.sourceLabel || item.source}. Use this IBM-authoritative content as the research foundation for ${productProfile.shortName} PMM assets.`,
+      summary: `${clipText(item.snippet || "", 220)} — Source: ${item.sourceLabel || item.source}. Validate this research source before using it as the foundation for ${productProfile.shortName} PMM assets.`,
       platform,
       status: "IBM Knowledge",
       tags: [tag, item.sourceLabel || "IBM", platform],
@@ -945,7 +947,7 @@ function buildContentSection(signals, productProfile, aiContentSuggestions = nul
       coverageType: "live",
       coverageLabel: "IBM Knowledge",
       sourceUrl: item.url,
-      outline: `Use this IBM ${tag} content as the anchor for your next ${productProfile.shortName} asset:\n\n1. Open source: ${item.url}\n2. Extract the key differentiation points\n3. Map them to current competitor signals\n4. Draft the ${platform.toLowerCase()} with IBM-verified proof`,
+      outline: buildContentDraft({ product: productProfile, title: item.title, format: platform, signal: { summary: item.snippet, sourceUrl: item.url, coverageType: "static" } }),
       propelSourced: true,
     });
   });
@@ -1030,7 +1032,7 @@ function buildPmmSection(signals, productProfile, aiActions = null, propelKnowle
       coverageType: "live",
       coverageLabel: "IBM Knowledge",
       sourceUrl: item.url,
-      outline: `IBM-sourced ${actionType} outline:\n\n1. Review: ${item.url}\n2. Extract key proof points and differentiators\n3. Map against current competitor pressure\n4. Draft the ${actionType.toLowerCase()} with IBM-verified citations`,
+      outline: buildPmmDraft({ product: productProfile, title: item.title, format: actionType, signal: { summary: item.snippet, sourceUrl: item.url, coverageType: "static" } }),
       propelSourced: true,
     });
   });
@@ -1493,6 +1495,9 @@ function resolveProductProfile(product = {}) {
     displayName,
     productName: product.productName || displayName,
     shortName,
+    productUrl: product.productUrl || "",
+    description: product.description || "",
+    primaryBuyer: product.primaryBuyer || template.buyerFrame,
     buyerFrame: product.primaryBuyer || template.buyerFrame,
     cacheKey: slugify(`${product.id || ""}-${displayName}-${shortName}`),
     confirmedCapabilities: template.confirmedCapabilities || PRODUCT_CONFIRMED_CAPABILITIES,
@@ -1870,7 +1875,7 @@ function getContentTitle(signal, index) {
 }
 
 function buildContentOutline(signal, platform, title, productProfile) {
-  return `DRAFT OUTLINE - ${platform}\n\nWorking title: ${title}\n\nWhy now\n- Latest source: ${signal.competitor} ${signal.sourceLabel}\n- Fresh signal: ${clipText(signal.summary, 150)}\n\nSection 1 - What ${signal.competitor} is telling the market\nSection 2 - Why buyers still need ${productProfile.strategicRole}\nSection 3 - Where ${productProfile.shortName} should redirect the evaluation\n- ${productProfile.categoryResponse}\n- Buyer fit: ${productProfile.buyerFrame}\n- IBM trust for governed workloads\nSection 4 - Questions buyers should ask before following the competitor narrative\n\nPublishing guidance\n- Platform: ${platform}\n- Primary CTA: Book a ${productProfile.shortName} architecture briefing\n- Reuse: seller snippet + social post + comparison slide`;
+  return buildContentDraft({ product: productProfile, signal, title, format: platform });
 }
 
 function selectPmmAssetStrategy(signal, index) {

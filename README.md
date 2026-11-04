@@ -1,3 +1,15 @@
+## November 2026 reliability and saved insights update
+
+- PMM cards now cover every configured competitor and contain downloadable first drafts. Content suggestions include filled copy, source notes and review requirements.
+- All 11 pages provide **Save snapshot**, **History**, **Download Markdown** and **Download JSON**. Successful insight refreshes are archived automatically. Downloads include full drafts even when cards are collapsed. Manage exports include saved settings and document names, not credentials or uploaded file contents.
+- History belongs to the current browser profile and product. Up to 10 versions per page are retained within a 1.2 MB text budget per product. Under browser quota pressure only the latest version per page is persisted; download important versions for long-term storage. Clearing browser storage removes local history. This is not cloud synchronization or a configuration-restore feature.
+- Refresh requests have timeouts, a transient-error retry and shared in-flight requests. Failures preserve the last good market/insight snapshot. Capability evidence and knowledge metadata now survive reload. Static-host snapshots are accepted only when product and competitor scope match and there is no saved insight snapshot.
+- Community search validates keywords in each returned result, uses direct HN discussion links and searches configured DBA/Stack Overflow/GitHub sources through their APIs. Per-source status distinguishes matches, no matches, failures, cached results and manual searches. LinkedIn/X require manual review.
+
+Targeted verification: `npm test` (Node's built-in test runner; no new dependencies). Run locally with `npm start`.
+
+---
+
 # SignalOps: Market & Community Intelligence Platform
 
 This workspace contains a clean internal SignalOps starter package for colleagues to run locally and create their own product intelligence workspace.

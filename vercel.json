@@ -1,26 +1,66 @@
 {
-    "rewrites": [
-        { "source": "/api/propel-insights",        "destination": "/api/propel-insights.mjs" },
-        { "source": "/api/workspace-intelligence", "destination": "/api/workspace-intelligence.mjs" },
-        { "source": "/api/market-signals",         "destination": "/api/market-signals.mjs" },
-        { "source": "/api/community-signals",      "destination": "/api/community-signals.mjs" }
-    ],
-    "headers": [
-          {
-                  "source": "/",
-                  "headers": [{ "key": "Cache-Control", "value": "no-cache, must-revalidate" }]
-          },
-          {
-                  "source": "/index.html",
-                  "headers": [{ "key": "Cache-Control", "value": "no-cache, must-revalidate" }]
-          },
-          {
-                  "source": "/dashboard.js",
-                  "headers": [{ "key": "Cache-Control", "value": "no-cache, must-revalidate" }]
-          },
-          {
-                  "source": "/styles.css",
-                  "headers": [{ "key": "Cache-Control", "value": "no-cache, must-revalidate" }]
-          }
-    ]
+  "rewrites": [
+    {
+      "source": "/api/propel-insights",
+      "destination": "/api/propel-insights.mjs"
+    },
+    {
+      "source": "/api/workspace-intelligence",
+      "destination": "/api/workspace-intelligence.mjs"
+    },
+    {
+      "source": "/api/market-signals",
+      "destination": "/api/market-signals.mjs"
+    },
+    {
+      "source": "/api/community-signals",
+      "destination": "/api/community-signals.mjs"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/dashboard.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/styles.css",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "api/workspace-intelligence.mjs": {
+      "maxDuration": 60
+    },
+    "api/community-signals.mjs": {
+      "maxDuration": 30
+    }
+  }
 }
