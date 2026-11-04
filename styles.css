@@ -2636,16 +2636,56 @@ button:disabled {
 .sidebar { top: 20px; }
 .page-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; margin-bottom: 18px; background: #fff; border: 1px solid #dce3ec; border-radius: 12px; }
 .page-tools[hidden] { display: none; }
-.page-tools-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-#pageToolStatus { flex-basis: 100%; font-size: 0.85rem; color: #195b31; }
-#pageToolStatus:empty { display: none; }
-.history-dialog { width: min(1100px, 92vw); max-height: 85vh; border: 1px solid #b7c5d6; border-radius: 16px; padding: 24px; color: #182638; }
-.history-dialog::backdrop { background: rgb(14 29 51 / 55%); }
-.history-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.history-layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 20px; margin-top: 16px; }
-.history-layout nav { display: flex; flex-direction: column; gap: 8px; }
-.history-layout .selected { background: #e8f0ff; border-color: #0f62fe; }
-.history-layout pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 0.9rem/1.6 system-ui, sans-serif; }
 .coverage-panel { margin-bottom: 16px; padding: 16px; }
 .coverage-panel li { margin: 8px 0; }
-@media (max-width: 700px) { .history-layout { grid-template-columns: 1fr; } .history-heading { align-items: flex-start; } }
+
+@page { size: A4; margin: 14mm; }
+@media print {
+  html, body {
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #182638 !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body.printing-output .topbar,
+  body.printing-output .sidebar,
+  body.printing-output #pageTools,
+  body.printing-output #authGate,
+  body.printing-output main.content > .page-section:not([data-pdf-output="true"]) {
+    display: none !important;
+  }
+  body.printing-output .app-shell,
+  body.printing-output .workspace,
+  body.printing-output main.content,
+  body.printing-output main.content > .page-section[data-pdf-output="true"] {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    animation: none !important;
+  }
+  body.printing-output main.content button { display: none !important; }
+  body.printing-output .panel,
+  body.printing-output .content-idea-item,
+  body.printing-output .pmm-action-item,
+  body.printing-output .content-alert-banner,
+  body.printing-output .pmm-alert-banner {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+  body.printing-output pre {
+    max-width: 100% !important;
+    overflow: visible !important;
+    overflow-wrap: anywhere !important;
+    white-space: pre-wrap !important;
+  }
+  body.printing-output a { color: inherit !important; text-decoration: none !important; }
+}
